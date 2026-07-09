@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base resets ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #0a0f1e;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+/* ─── Custom Scrollbar ─── */
+::-webkit-scrollbar         { width: 6px; height: 6px; }
+::-webkit-scrollbar-track   { background: #0f1629; }
+::-webkit-scrollbar-thumb   { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+
+/* ─── Glassmorphism card ─── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Glow helpers ─── */
+.glow-indigo  { box-shadow: 0 0 20px rgba(99,  102, 241, 0.25); }
+.glow-emerald { box-shadow: 0 0 20px rgba(16,  185, 129, 0.25); }
+.glow-violet  { box-shadow: 0 0 20px rgba(139, 92,  246, 0.25); }
+.glow-amber   { box-shadow: 0 0 20px rgba(245, 158, 11,  0.25); }
+.glow-rose    { box-shadow: 0 0 20px rgba(244, 63,  94,  0.25); }
+
+/* ─── Animations ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(99,102,241,0.2); }
+  50%       { box-shadow: 0 0 24px rgba(99,102,241,0.5); }
+}
+
+.animate-fade-in-up { animation: fadeInUp    0.4s ease-out both; }
+.animate-fade-in    { animation: fadeIn      0.3s ease-out both; }
+.animate-slide-in   { animation: slideInLeft 0.3s ease-out both; }
+.animate-pulse-glow { animation: pulse-glow  2s infinite; }
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.10s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.20s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.30s; }
+
+/* ─── Form input base ─── */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+
+/* ─── Table helpers ─── */
+table { border-collapse: collapse; width: 100%; }
