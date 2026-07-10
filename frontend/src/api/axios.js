@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken, handleUnauthorized } from './authToken';
 
 const api = axios.create({
   baseURL: '/api',
@@ -6,21 +7,18 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Attach JWT token to every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = getToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Handle 401 — redirect to login
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    const isLoginRequest = err.config?.url?.includes('/auth/login');
+    if (err.response?.status === 401 && !isLoginRequest) {
+      handleUnauthorized();
     }
     return Promise.reject(err);
   }

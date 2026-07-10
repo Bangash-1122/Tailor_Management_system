@@ -1,59 +1,43 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { login as loginApi } from '../api/auth';
+import { setToken as setAuthToken, clearToken, setUnauthorizedHandler } from '../api/authToken';
 
 const AuthContext = createContext(null);
 
-// Demo credentials for offline/frontend-only mode
-const DEMO_USER = {
-  _id: 'demo-001',
-  name: 'Admin User',
-  email: 'admin@tailorpro.com',
-  role: 'admin',
-};
-const DEMO_TOKEN = 'demo-jwt-token';
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
-  });
-  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setUser(null);
+      setToken(null);
+    });
+    return () => setUnauthorizedHandler(null);
+  }, []);
 
   const login = useCallback(async (email, password) => {
     setLoading(true);
     try {
-      // Try real backend first
       const res = await loginApi({ email, password });
-      const { token: tk, data } = res.data;
-      localStorage.setItem('token', tk);
-      localStorage.setItem('user', JSON.stringify(data));
-      setToken(tk);
-      setUser(data);
+      const { user: loggedInUser, token: jwt } = res.data.data;
+      setAuthToken(jwt);
+      setToken(jwt);
+      setUser(loggedInUser);
       return { success: true };
     } catch (err) {
-      // Demo fallback — accept any credentials or demo ones
-      const isDemoLogin =
-        (email === 'admin@tailorpro.com' && password === 'admin123') ||
-        err.code === 'ERR_NETWORK' ||
-        err.code === 'ECONNREFUSED' ||
-        !err.response; // network error means backend is offline
-
-      if (isDemoLogin) {
-        localStorage.setItem('token', DEMO_TOKEN);
-        localStorage.setItem('user', JSON.stringify(DEMO_USER));
-        setToken(DEMO_TOKEN);
-        setUser(DEMO_USER);
-        return { success: true };
-      }
-      return { success: false, message: err.response?.data?.message || 'Login failed' };
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Login failed. Please check your credentials.',
+      };
     } finally {
       setLoading(false);
     }
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearToken();
     setToken(null);
     setUser(null);
   }, []);

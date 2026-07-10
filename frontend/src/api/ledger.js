@@ -1,2 +1,2 @@
 import api from './axios';
-export const getLedger = (customerId) => api.get(`/ledger/${customerId}`);
+export const getLedger = (customerId) => api.get(`/v1/ledger/${customerId}`);

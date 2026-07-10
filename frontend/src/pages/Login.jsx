@@ -48,7 +48,7 @@ export default function Login() {
                 id="login-email"
                 type="email"
                 autoComplete="email"
-                placeholder="admin@tailorpro.com"
+                placeholder="admin@tailor.com"
                 className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border ${
                   errors.email ? 'border-rose-500/60' : 'border-white/10'
                 } text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-colors text-sm`}
@@ -71,7 +71,10 @@ export default function Login() {
                   className={`w-full px-4 py-2.5 pr-11 rounded-xl bg-white/5 border ${
                     errors.password ? 'border-rose-500/60' : 'border-white/10'
                   } text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-colors text-sm`}
-                  {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Min 6 characters' } })}
+                  {...register('password', { 
+                    required: 'Password is required', 
+                    minLength: { value: 6, message: 'Min 6 characters' } 
+                  })}
                 />
                 <button
                   type="button"
