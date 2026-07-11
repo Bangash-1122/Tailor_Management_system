@@ -3,8 +3,16 @@ import * as authService from '../services/authService.js';
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const result = await authService.loginUser(email, password);
-    res.json({ success: true, data: result });
+
+    const result = await authService.loginUser(
+      email,
+      password
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
   } catch (err) {
     next(err);
   }
@@ -13,12 +21,25 @@ export const login = async (req, res, next) => {
 export const register = async (req, res, next) => {
   try {
     const user = await authService.registerUser(req.body);
-    res.status(201).json({ success: true, data: user });
+
+    return res.status(201).json({
+      success: true,
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      },
+    });
   } catch (err) {
     next(err);
   }
 };
 
 export const getMe = async (req, res) => {
-  res.json({ success: true, data: req.user });
+  return res.status(200).json({
+    success: true,
+    data: req.user,
+  });
 };
