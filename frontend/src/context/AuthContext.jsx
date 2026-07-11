@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { login as loginApi } from '../api/auth';
-import { setToken as setAuthToken, clearToken, setUnauthorizedHandler } from '../api/authToken';
+import { login as loginApi, getMe as getMeApi } from '../api/auth';
+import { setToken as setAuthToken, clearToken, setUnauthorizedHandler, initAuthToken, getToken as getStoredToken } from '../api/authToken';
 
 const AuthContext = createContext(null);
 
@@ -15,6 +15,26 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
     });
     return () => setUnauthorizedHandler(null);
+  }, []);
+
+  useEffect(() => {
+    // initialize token from storage and try to fetch current user
+    initAuthToken();
+    const existing = getStoredToken();
+    if (existing) {
+      setToken(existing);
+      (async () => {
+        try {
+          const res = await getMeApi();
+          setUser(res.data.data);
+        } catch {
+          // token invalid — clear
+          clearToken();
+          setToken(null);
+          setUser(null);
+        }
+      })();
+    }
   }, []);
 
   const login = useCallback(async (email, password) => {

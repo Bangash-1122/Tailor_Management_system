@@ -4,7 +4,14 @@ import { AppError } from '../utils/AppError.js';
 
 export const loginUser = async (email, password) => {
   const user = await User.findOne({ email });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[authService] login attempt for:', email);
+    console.log('[authService] user found:', !!user);
+  }
   if (!user || !(await user.comparePassword(password))) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[authService] invalid credentials for:', email);
+    }
     throw new AppError('Invalid email or password', 401);
   }
   if (!user.status) {
