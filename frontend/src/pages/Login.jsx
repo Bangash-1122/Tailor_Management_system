@@ -14,6 +14,7 @@ export default function Login() {
 
   const onSubmit = async ({ email, password }) => {
     const result = await login(email, password);
+        console.log('Login result:', result); // Debugging line
     if (!result.success) toast.error(result.message);
   };
 

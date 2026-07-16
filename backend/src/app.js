@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import measurementRoutes from './routes/measurementRoutes.js';
@@ -35,6 +35,7 @@ app.use(express.json({
 app.use(express.urlencoded({
     extended: true
 }));
+app.use(cookieParser());
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,

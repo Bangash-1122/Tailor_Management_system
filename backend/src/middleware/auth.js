@@ -2,19 +2,25 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { AppError } from '../utils/AppError.js';
 
+const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
+
 export const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
+  const tokenFromHeader = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+  const token = tokenFromHeader || req.cookies?.accessToken;
+
+  if (!token) {
     return next(new AppError('Not authorized, no token', 401));
   }
 
-  const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const decoded = jwt.verify(token, accessTokenSecret);
+    const user = await User.findById(decoded.id).select('-password -refreshToken');
+
     if (!user || !user.status) {
       return next(new AppError('User not found or inactive', 401));
     }
+
     req.user = user;
     next();
   } catch {

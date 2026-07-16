@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import {
   login,
   register,
+  refresh,
   getMe,
 } from '../controllers/authController.js';
 import {
@@ -56,6 +57,7 @@ router.post(
   register
 );
 
+router.post('/refresh', refresh);
 router.get('/me', protect, getMe);
 
 export default router;
