@@ -1,4 +1,5 @@
 import * as authService from '../services/authService.js';
+import cookieParser from 'cookie-parser';
 
 const cookieOptions = {
   httpOnly: true,
