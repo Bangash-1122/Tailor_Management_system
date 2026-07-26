@@ -29,7 +29,8 @@ export default function Staff() {
     setLoading(true);
     try {
       const res = await getStaff();
-      setStaff(res.data.data || []);
+      const data = res.data.data;
+      setStaff(Array.isArray(data) ? data : data?.staff || []);
     } catch { setStaff([]); }
     finally { setLoading(false); }
   }, []);

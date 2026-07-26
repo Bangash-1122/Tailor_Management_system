@@ -1,40 +1,97 @@
 import axios from 'axios';
+
 import {
     getToken,
-    handleUnauthorized
+    setToken,
+    handleUnauthorized,
 } from './authToken';
 
 const api = axios.create({
-    baseURL: '/api',
+    baseURL:
+        import.meta.env.VITE_API_URL ||
+        '/api',
+
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
     },
+
     withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-    const token = getToken();
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-});
+api.interceptors.request.use(
+    (config) => {
+        const token = getToken();
 
-api.interceptors.response.use(
-    (res) => res,
-    (err) => {
-        const isLoginRequest =
-            err.config &&
-            err.config.url &&
-            err.config.url.includes('/auth/login');
+        if (token) {
+            config.headers = config.headers || {};
 
-        if (
-            err.response &&
-            err.response.status === 401 &&
-            !isLoginRequest
-        ) {
-            handleUnauthorized();
+            config.headers.Authorization =
+                `Bearer ${token}`;
         }
 
-        return Promise.reject(err);
+        return config;
+    },
+
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+api.interceptors.response.use(
+    (response) => response,
+
+    async (error) => {
+        const originalRequest = error.config;
+
+        const status = error.response?.status;
+
+        const requestUrl =
+            originalRequest?.url || '';
+
+        const isLoginRequest =
+            requestUrl.includes('/auth/login');
+
+        const isRefreshRequest =
+            requestUrl.includes('/auth/refresh');
+
+        if (
+            status === 401 &&
+            !isLoginRequest &&
+            !isRefreshRequest &&
+            !originalRequest?._retry
+        ) {
+            originalRequest._retry = true;
+
+            try {
+                const refreshResponse =
+                    await api.post('/v1/auth/refresh');
+
+                const newAccessToken =
+                    refreshResponse.data?.data?.accessToken;
+
+                if (!newAccessToken) {
+                    throw new Error(
+                        'Access token was not returned'
+                    );
+                }
+
+                setToken(newAccessToken);
+
+                originalRequest.headers =
+                    originalRequest.headers || {};
+
+                originalRequest.headers.Authorization =
+                    `Bearer ${newAccessToken}`;
+
+                return api(originalRequest);
+            } catch (refreshError) {
+                handleUnauthorized();
+
+                return Promise.reject(refreshError);
+            }
+        }
+
+        return Promise.reject(error);
     }
 );
 

@@ -41,7 +41,7 @@ const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100
 });
-app.use('/api/v1/auth/login', rateLimit({
+app.use('/api/v1/auth/', rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 20
 }));

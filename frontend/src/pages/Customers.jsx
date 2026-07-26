@@ -22,7 +22,8 @@ export default function Customers() {
     setLoading(true);
     try {
       const res = await getCustomers({ search });
-      setCustomers(res.data.data || []);
+      const data = res.data.data;
+      setCustomers(Array.isArray(data) ? data : data?.customers || []);
     } catch { setCustomers([]); }
     finally { setLoading(false); }
   }, [search]);

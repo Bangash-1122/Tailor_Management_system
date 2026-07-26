@@ -42,10 +42,13 @@ export default function Payments() {
     setLoading(true);
     try {
       const [pRes, cRes, oRes] = await Promise.all([getPayments(), getCustomers(), getOrders()]);
-      setPayments(pRes.data.data || []);
-      setCustomers(cRes.data.data || []);
-      setOrders(oRes.data.data || []);
-    } catch { setPayments([]); }
+      const pData = pRes.data.data;
+      const cData = cRes.data.data;
+      const oData = oRes.data.data;
+      setPayments(Array.isArray(pData) ? pData : pData?.payments || []);
+      setCustomers(Array.isArray(cData) ? cData : cData?.customers || []);
+      setOrders(Array.isArray(oData) ? oData : oData?.orders || []);
+    } catch { setPayments([]); setCustomers([]); setOrders([]); }
     finally { setLoading(false); }
   }, []);
 

@@ -13,15 +13,10 @@ const seed = async () => {
   await Customer.deleteMany({});
   await Staff.deleteMany({});
 
-  const hashPassword = async (plainPassword) => {
-    const bcrypt = await import('bcryptjs');
-    return bcrypt.default.hash(plainPassword, 12);
-  };
-
   const admin = await User.create({
     name: 'Admin Owner',
     email: 'admin@tailor.com',
-    password: await hashPassword('admin123'),
+    password: 'admin123',
     role: 'admin',
     phone: '03001234567',
   });
@@ -29,7 +24,7 @@ const seed = async () => {
   await User.create({
     name: 'Shop Manager',
     email: 'manager@tailor.com',
-    password: await hashPassword('manager123'),
+    password: 'manager123',
     role: 'manager',
     phone: '03001234568',
   });
@@ -37,7 +32,7 @@ const seed = async () => {
   const tailor = await User.create({
     name: 'Master Tailor',
     email: 'tailor@tailor.com',
-    password: await hashPassword('tailor123'),
+    password: 'tailor123',
     role: 'tailor',
     phone: '03001234569',
   });
@@ -45,7 +40,7 @@ const seed = async () => {
   await User.create({
     name: 'Reception Desk',
     email: 'reception@tailor.com',
-    password: await hashPassword('reception123'),
+    password: 'reception123',
     role: 'receptionist',
     phone: '03001234570',
   });

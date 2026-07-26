@@ -28,9 +28,11 @@ export default function Measurements() {
     setLoading(true);
     try {
       const [mRes, cRes] = await Promise.all([getMeasurements({ search }), getCustomers()]);
-      setMeasurements(mRes.data.data || []);
-      setCustomers(cRes.data.data || []);
-    } catch { setMeasurements([]); }
+      const mData = mRes.data.data;
+      const cData = cRes.data.data;
+      setMeasurements(Array.isArray(mData) ? mData : mData?.measurements || []);
+      setCustomers(Array.isArray(cData) ? cData : cData?.customers || []);
+    } catch { setMeasurements([]); setCustomers([]); }
     finally { setLoading(false); }
   }, [search]);
 
@@ -62,14 +64,14 @@ export default function Measurements() {
   };
 
   const columns = [
-    { key: 'customerId', label: 'Customer', render: (v) => <span className="font-medium text-slate-200">{v?.name ?? '—'}</span> },
-    { key: 'type', label: 'Type', render: (v) => <Badge label={v} className="bg-indigo-500/20 text-indigo-400 border-indigo-500/30 capitalize" /> },
-    { key: 'measurements', label: 'Chest', render: (v) => v?.chest ? `${v.chest}"` : '—' },
-    { key: 'measurements', label: 'Waist', render: (v) => v?.waist ? `${v.waist}"` : '—' },
-    { key: 'measurements', label: 'Shoulder', render: (v) => v?.shoulder ? `${v.shoulder}"` : '—' },
-    { key: 'measurements', label: 'Length', render: (v) => v?.length ? `${v.length}"` : '—' },
-    { key: 'version', label: 'Version', render: (v) => <span className="text-slate-500">v{v ?? 1}</span> },
-    { key: 'createdAt', label: 'Date', render: (v) => formatDate(v) },
+    { id: 'col-customer', key: 'customerId', label: 'Customer', render: (v) => <span className="font-medium text-slate-200">{v?.name ?? '—'}</span> },
+    { id: 'col-type', key: 'type', label: 'Type', render: (v) => <Badge label={v} className="bg-indigo-500/20 text-indigo-400 border-indigo-500/30 capitalize" /> },
+    { id: 'col-chest', key: 'measurements', label: 'Chest', render: (v) => v?.chest ? `${v.chest}"` : '—' },
+    { id: 'col-waist', key: 'measurements', label: 'Waist', render: (v) => v?.waist ? `${v.waist}"` : '—' },
+    { id: 'col-shoulder', key: 'measurements', label: 'Shoulder', render: (v) => v?.shoulder ? `${v.shoulder}"` : '—' },
+    { id: 'col-length', key: 'measurements', label: 'Length', render: (v) => v?.length ? `${v.length}"` : '—' },
+    { id: 'col-version', key: 'version', label: 'Version', render: (v) => <span className="text-slate-500">v{v ?? 1}</span> },
+    { id: 'col-date', key: 'createdAt', label: 'Date', render: (v) => formatDate(v) },
     {
       key: '_id', label: 'Actions',
       render: (_, row) => (

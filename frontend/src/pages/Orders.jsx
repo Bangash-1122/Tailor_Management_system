@@ -37,9 +37,11 @@ export default function Orders() {
         getOrders({ search, status: statusFilter }),
         getCustomers(),
       ]);
-      setOrders(oRes.data.data || []);
-      setCustomers(cRes.data.data || []);
-    } catch { setOrders([]); }
+      const oData = oRes.data.data;
+      const cData = cRes.data.data;
+      setOrders(Array.isArray(oData) ? oData : oData?.orders || []);
+      setCustomers(Array.isArray(cData) ? cData : cData?.customers || []);
+    } catch { setOrders([]); setCustomers([]); }
     finally { setLoading(false); }
   }, [search, statusFilter]);
 

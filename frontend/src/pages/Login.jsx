@@ -12,10 +12,23 @@ export default function Login() {
 
   if (isAuthenticated) return <Navigate to="/" replace />;
 
-  const onSubmit = async ({ email, password }) => {
-    const result = await login(email, password);
-        console.log('Login result:', result); // Debugging line
-    if (!result.success) toast.error(result.message);
+  const onSubmit = async ({
+    email,
+    password,
+  }) => {
+    const result = await login(
+      email,
+      password
+    );
+
+    if (!result.success) {
+      toast.error(result.message);
+      return;
+    }
+
+    toast.success(
+      'Logged in successfully'
+    );
   };
 
   return (
@@ -50,10 +63,19 @@ export default function Login() {
                 type="email"
                 autoComplete="email"
                 placeholder="admin@tailor.com"
-                className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border ${
-                  errors.email ? 'border-rose-500/60' : 'border-white/10'
-                } text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-colors text-sm`}
-                {...register('email', { required: 'Email is required' })}
+                className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border ${errors.email ? 'border-rose-500/60' : 'border-white/10'
+                  } text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-colors text-sm`}
+                {...register('email', {
+                  required: 'Email is required',
+
+                  pattern: {
+                    value:
+                      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+
+                    message:
+                      'Please enter a valid email address',
+                  },
+                })}
               />
               {errors.email && <p className="mt-1 text-xs text-rose-400">{errors.email.message}</p>}
             </div>
@@ -69,22 +91,23 @@ export default function Login() {
                   type={showPass ? 'text' : 'password'}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className={`w-full px-4 py-2.5 pr-11 rounded-xl bg-white/5 border ${
-                    errors.password ? 'border-rose-500/60' : 'border-white/10'
-                  } text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-colors text-sm`}
+                  className={`w-full px-4 py-2.5 pr-11 rounded-xl bg-white/5 border ${errors.password ? 'border-rose-500/60' : 'border-white/10'
+                    } text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-colors text-sm`}
                   {...register('password', {
                     required: 'Password is required',
-                    minLength: { value: 6, message: 'Min 6 characters' } 
+                    minLength: {
+                      value: 6,
+                      message:
+                        'Password must contain at least 6 characters',
+                    },
                   })}
                 />
                 <button
                   type="button"
-                  id="toggle-password-btn"
-                  onClick={() => setShowPass((s) => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
-                  aria-label={showPass ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                 >
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {errors.password && <p className="mt-1 text-xs text-rose-400">{errors.password.message}</p>}

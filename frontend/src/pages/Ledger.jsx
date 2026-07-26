@@ -17,7 +17,13 @@ export default function Ledger() {
   const [customerSearch, setCustomerSearch] = useState('');
 
   useEffect(() => {
-    getCustomers().then((r) => setCustomers(r.data.data || [])).catch(() => {}).finally(() => setLoadingC(false));
+    getCustomers()
+      .then((r) => {
+        const data = r.data.data;
+        setCustomers(Array.isArray(data) ? data : data?.customers || []);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingC(false));
   }, []);
 
   const fetchLedger = useCallback(async (cid) => {

@@ -36,7 +36,8 @@ export default function Expenses() {
     setLoading(true);
     try {
       const res = await getExpenses({ search, category: catFilter });
-      setExpenses(res.data.data || []);
+      const data = res.data.data;
+      setExpenses(Array.isArray(data) ? data : data?.expenses || []);
     } catch { setExpenses([]); }
     finally { setLoading(false); }
   }, [search, catFilter]);
@@ -108,7 +109,7 @@ export default function Expenses() {
               <CartesianGrid strokeDasharray="3 3" stroke="#1e2d52" />
               <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v) => [formatCurrency(v)]} contentStyle={{ background: '#0f1629', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12 }} />
+              <Tooltip formatter={(v) => [formatCurrency(v)]} contentStyle={{ background: '#0f1629', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12, color: '#e2e8f0' }} itemStyle={{ color: '#e2e8f0' }} />
               <Bar dataKey="amount" fill="#6366f1" radius={[6,6,0,0]} />
             </BarChart>
           </ResponsiveContainer>

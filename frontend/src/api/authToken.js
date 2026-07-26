@@ -1,42 +1,66 @@
 const STORAGE_KEY = 'tm_token';
+
 let token = null;
 let onUnauthorized = null;
 
 export const getToken = () => {
-  if (token) return token;
+  if (token) {
+    return token;
+  }
+
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) token = stored;
+    const storedToken = localStorage.getItem(STORAGE_KEY);
+
+    if (storedToken) {
+      token = storedToken;
+    }
+
     return token;
-  } catch {
-    return token;
+  } catch (error) {
+    console.error('Failed to read token:', error);
+    return null;
   }
 };
 
 export const setToken = (value) => {
-  token = value;
+  token = value || null;
+
   try {
-    if (value) localStorage.setItem(STORAGE_KEY, value);
-    else localStorage.removeItem(STORAGE_KEY);
-  } catch {}
+    if (value) {
+      localStorage.setItem(STORAGE_KEY, value);
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  } catch (error) {
+    console.error('Failed to store token:', error);
+  }
 };
 
 export const clearToken = () => {
   token = null;
+
   try {
     localStorage.removeItem(STORAGE_KEY);
-  } catch {}
+  } catch (error) {
+    console.error('Failed to remove token:', error);
+  }
 };
 
 export const setUnauthorizedHandler = (handler) => {
-  onUnauthorized = handler;
+  onUnauthorized =
+    typeof handler === 'function'
+      ? handler
+      : null;
 };
 
 export const handleUnauthorized = () => {
   clearToken();
-  onUnauthorized?.();
+
+  if (onUnauthorized) {
+    onUnauthorized();
+  }
 };
 
 export const initAuthToken = () => {
-  getToken();
+  return getToken();
 };

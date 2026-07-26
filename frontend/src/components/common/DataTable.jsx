@@ -21,9 +21,9 @@ export default function DataTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/8 bg-white/2">
-              {columns.map((col) => (
+              {columns.map((col, index) => (
                 <th
-                  key={col.key}
+                  key={col.id || `${col.key}-${col.label || index}`}
                   className={`px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap ${
                     col.sortable && onSort ? 'cursor-pointer hover:text-slate-200 select-none' : ''
                   }`}
@@ -56,8 +56,8 @@ export default function DataTable({
                   key={row._id || i}
                   className="hover:bg-white/3 transition-colors duration-150 group"
                 >
-                  {columns.map((col) => (
-                    <td key={col.key} className="px-4 py-3 text-slate-300 whitespace-nowrap">
+                  {columns.map((col, colIndex) => (
+                    <td key={col.id || `${col.key}-${col.label || colIndex}`} className="px-4 py-3 text-slate-300 whitespace-nowrap">
                       {col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—')}
                     </td>
                   ))}

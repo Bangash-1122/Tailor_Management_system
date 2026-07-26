@@ -135,7 +135,11 @@ export default function Dashboard() {
                   <Cell key={i} fill={pieColors[i % pieColors.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(v) => [v, 'Orders']} contentStyle={{ background: '#0f1629', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12 }} />
+              <Tooltip
+                formatter={(v) => [v, 'Orders']}
+                contentStyle={{ background: '#0f1629', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12, color: '#e2e8f0' }}
+                itemStyle={{ color: '#e2e8f0' }}
+              />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, color: '#94a3b8' }} />
             </PieChart>
           </ResponsiveContainer>

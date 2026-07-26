@@ -1,63 +1,106 @@
-import { Router } from 'express';
-import { body } from 'express-validator';
+import {
+  Router,
+} from 'express';
+
+import {
+  body,
+} from 'express-validator';
+
 import {
   login,
   register,
   refresh,
   getMe,
+  logout,
 } from '../controllers/authController.js';
+
 import {
   protect,
   authorize,
 } from '../middleware/auth.js';
-import { validate } from '../middleware/validate.js';
+
+import {
+  validate,
+} from '../middleware/validate.js';
 
 const router = Router();
 
 router.post(
   '/login',
+
   [
     body('email')
       .trim()
       .toLowerCase()
       .isEmail()
-      .withMessage('Valid email required'),
+      .withMessage(
+        'Valid email required'
+      ),
 
     body('password')
       .notEmpty()
-      .withMessage('Password required'),
+      .withMessage(
+        'Password required'
+      ),
 
     validate,
   ],
+
   login
 );
 
 router.post(
   '/register',
+
   protect,
+
   authorize('admin'),
+
   [
     body('name')
       .trim()
       .notEmpty()
-      .withMessage('Name required'),
+      .withMessage(
+        'Name required'
+      ),
 
     body('email')
       .trim()
       .toLowerCase()
       .isEmail()
-      .withMessage('Valid email required'),
+      .withMessage(
+        'Valid email required'
+      ),
 
     body('password')
-      .isLength({ min: 6 })
-      .withMessage('Password min 6 chars'),
+      .isLength({
+        min: 6,
+      })
+      .withMessage(
+        'Password min 6 chars'
+      ),
 
     validate,
   ],
+
   register
 );
 
-router.post('/refresh', refresh);
-router.get('/me', protect, getMe);
+router.post(
+  '/refresh',
+  refresh
+);
+
+router.post(
+  '/logout',
+  protect,
+  logout
+);
+
+router.get(
+  '/me',
+  protect,
+  getMe
+);
 
 export default router;
