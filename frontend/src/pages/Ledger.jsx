@@ -31,7 +31,8 @@ export default function Ledger() {
     setLoadingE(true);
     try {
       const r = await getLedger(cid);
-      setEntries(r.data.data || []);
+      const data = r.data?.data;
+      setEntries(Array.isArray(data) ? data : data?.entries || []);
     } catch { setEntries([]); }
     finally { setLoadingE(false); }
   }, []);
@@ -45,8 +46,9 @@ export default function Ledger() {
 
   const selectedCustomer = customers.find((c) => c._id === selected);
 
-  const totalDebit  = entries.filter((e) => e.type === 'debit').reduce((s, e) => s + e.amount, 0);
-  const totalCredit = entries.filter((e) => e.type === 'credit').reduce((s, e) => s + e.amount, 0);
+  const safeEntries = Array.isArray(entries) ? entries : [];
+  const totalDebit  = safeEntries.filter((e) => e?.type === 'debit').reduce((s, e) => s + (Number(e?.amount) || 0), 0);
+  const totalCredit = safeEntries.filter((e) => e?.type === 'credit').reduce((s, e) => s + (Number(e?.amount) || 0), 0);
   const balance     = selectedCustomer?.ledgerBalance ?? (totalCredit - totalDebit);
 
   const columns = [

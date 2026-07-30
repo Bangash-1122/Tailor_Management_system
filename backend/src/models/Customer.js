@@ -11,6 +11,8 @@ const customerSchema = new mongoose.Schema(
     gender: { type: String, enum: ['male', 'female', 'other'], default: 'male' },
     notes: { type: String, trim: true },
     status: { type: Boolean, default: true },
+    balance: { type: Number, default: 0 },
+    quantity: { type: Number, default: 0 },
     ledgerBalance: { type: Number, default: 0 },
   },
   { timestamps: true }
