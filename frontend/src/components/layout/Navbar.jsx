@@ -1,23 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Bell,
   Search,
   X,
-  CheckCheck,
-  LayoutDashboard,
-  Users,
-  Ruler,
-  ShoppingBag,
-  CreditCard,
-  WalletCards,
-  Receipt,
+  Phone,
+  Mail,
+  MapPin,
   UserRound,
-  BarChart3,
-  Settings,
+  WalletCards,
+  CheckCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { getInitials } from '../../utils/helpers';
+import { getInitials, formatDate } from '../../utils/helpers';
+import { getCustomers } from '../../api/customers';
+import { getPayments } from '../../api/payments';
 
 const PAGE_TITLES = {
   '/': 'Dashboard',
@@ -32,55 +29,32 @@ const PAGE_TITLES = {
   '/settings': 'Settings',
 };
 
-const SEARCH_ITEMS = [
-  { label: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { label: 'Customers', path: '/customers', icon: Users },
-  { label: 'Measurements', path: '/measurements', icon: Ruler },
-  { label: 'Orders', path: '/orders', icon: ShoppingBag },
-  { label: 'Payments', path: '/payments', icon: CreditCard },
-  { label: 'Ledger', path: '/ledger', icon: WalletCards },
-  { label: 'Expenses', path: '/expenses', icon: Receipt },
-  { label: 'Staff', path: '/staff', icon: UserRound },
-  { label: 'Reports', path: '/reports', icon: BarChart3 },
-  { label: 'Settings', path: '/settings', icon: Settings },
-];
+const getCustomerName = (payment) =>
+  payment?.customerId?.name ||
+  payment?.customer?.name ||
+  payment?.orderId?.customerId?.name ||
+  'Customer';
 
-const DEFAULT_NOTIFICATIONS = [
-  {
-    id: 1,
-    title: 'New order created',
-    message: 'A new tailoring order has been added.',
-    time: '5 minutes ago',
-    unread: true,
-    path: '/orders',
-  },
-  {
-    id: 2,
-    title: 'Measurement saved',
-    message: 'A customer measurement sheet was updated.',
-    time: '18 minutes ago',
-    unread: true,
-    path: '/measurements',
-  },
-  {
-    id: 3,
-    title: 'Payment received',
-    message: 'A customer payment has been recorded.',
-    time: '1 hour ago',
-    unread: false,
-    path: '/payments',
-  },
-];
+const getPaymentAmount = (payment) =>
+  payment?.amount ??
+  payment?.paidAmount ??
+  payment?.paymentAmount ??
+  0;
 
 export default function Navbar() {
   const { user } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState(DEFAULT_NOTIFICATIONS);
+  const [paymentNotifications, setPaymentNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [readNotificationIds, setReadNotificationIds] = useState([]);
 
   const searchInputRef = useRef(null);
   const notificationRef = useRef(null);
@@ -92,20 +66,16 @@ export default function Navbar() {
         : location.pathname.startsWith(path)
     )?.[1] || 'Tailor Pro';
 
-  const filteredItems = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return SEARCH_ITEMS;
-
-    return SEARCH_ITEMS.filter((item) =>
-      item.label.toLowerCase().includes(query)
-    );
-  }, [searchQuery]);
-
-  const unreadCount = notifications.filter((item) => item.unread).length;
+  const unreadCount = paymentNotifications.filter(
+    (item) => !readNotificationIds.includes(item.id)
+  ).length;
 
   useEffect(() => {
     const handleShortcut = (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === 'k'
+      ) {
         event.preventDefault();
         setSearchOpen(true);
         setNotificationsOpen(false);
@@ -114,11 +84,15 @@ export default function Navbar() {
       if (event.key === 'Escape') {
         setSearchOpen(false);
         setNotificationsOpen(false);
+        setSelectedCustomer(null);
       }
     };
 
     window.addEventListener('keydown', handleShortcut);
-    return () => window.removeEventListener('keydown', handleShortcut);
+
+    return () => {
+      window.removeEventListener('keydown', handleShortcut);
+    };
   }, []);
 
   useEffect(() => {
@@ -126,6 +100,8 @@ export default function Navbar() {
       requestAnimationFrame(() => searchInputRef.current?.focus());
     } else {
       setSearchQuery('');
+      setCustomers([]);
+      setSelectedCustomer(null);
     }
   }, [searchOpen]);
 
@@ -140,29 +116,230 @@ export default function Navbar() {
     };
 
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
   }, []);
 
-  const navigateTo = (path) => {
-    navigate(path);
-    setSearchOpen(false);
-    setNotificationsOpen(false);
-  };
+  /*
+   * Search customers without navigating away.
+   * Clicking a result opens the customer's data inside the same navbar modal.
+   */
+  useEffect(() => {
+    const query = searchQuery.trim();
 
-  const openNotification = (notification) => {
-    setNotifications((current) =>
-      current.map((item) =>
-        item.id === notification.id ? { ...item, unread: false } : item
-      )
+    if (!searchOpen || query.length < 2) {
+      setCustomers([]);
+      setSearchLoading(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setSearchLoading(true);
+
+      try {
+        const response = await getCustomers({ search: query });
+        const data = response?.data?.data;
+
+        const customerList = Array.isArray(data)
+          ? data
+          : data?.customers || [];
+
+        const normalizedQuery = query.toLowerCase();
+
+        const filtered = customerList.filter((customer) =>
+          [
+            customer?.name,
+            customer?.customerCode,
+            customer?.phone,
+            customer?.email,
+          ].some((value) =>
+            String(value || '')
+              .toLowerCase()
+              .includes(normalizedQuery)
+          )
+        );
+
+        setCustomers(filtered);
+      } catch (error) {
+        console.error('Customer search failed:', error);
+        setCustomers([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchOpen, searchQuery]);
+
+  /*
+   * Load real payment notifications.
+   * The latest received payments appear in the notification bell.
+   */
+  useEffect(() => {
+    const loadPaymentNotifications = async () => {
+      setNotificationsLoading(true);
+
+      try {
+        const response = await getPayments();
+        const data = response?.data?.data;
+
+        const paymentList = Array.isArray(data)
+          ? data
+          : data?.payments || [];
+
+        const notifications = paymentList
+          .filter((payment) => {
+            const status = String(payment?.status || '').toLowerCase();
+
+            return (
+              status === 'received' ||
+              status === 'paid' ||
+              status === 'completed' ||
+              payment?.amount ||
+              payment?.paidAmount
+            );
+          })
+          .sort(
+            (a, b) =>
+              new Date(b?.createdAt || 0) - new Date(a?.createdAt || 0)
+          )
+          .slice(0, 10)
+          .map((payment) => ({
+            id: payment?._id,
+            customerName: getCustomerName(payment),
+            amount: getPaymentAmount(payment),
+            method:
+              payment?.method ||
+              payment?.paymentMethod ||
+              'Payment',
+            createdAt: payment?.createdAt,
+            reference:
+              payment?.reference ||
+              payment?.transactionId ||
+              payment?.receiptNumber ||
+              '',
+          }));
+
+        setPaymentNotifications(notifications);
+      } catch (error) {
+        console.error('Payment notifications failed:', error);
+        setPaymentNotifications([]);
+      } finally {
+        setNotificationsLoading(false);
+      }
+    };
+
+    loadPaymentNotifications();
+  }, []);
+
+  const fetchFreshCustomer = useCallback(async (customerId, searchValue = '') => {
+    if (!customerId) return null;
+
+    try {
+      // Re-read the customer from the API so balance and quantity are not stale.
+      // The search text keeps this compatible with your existing getCustomers API.
+      const response = await getCustomers({ search: searchValue });
+      const data = response?.data?.data;
+      const customerList = Array.isArray(data) ? data : data?.customers || [];
+
+      return (
+        customerList.find((customer) => customer?._id === customerId) || null
+      );
+    } catch (error) {
+      console.error('Failed to refresh customer:', error);
+      return null;
+    }
+  }, []);
+
+  const refreshSelectedCustomer = useCallback(async () => {
+    const customerId = selectedCustomer?._id;
+    if (!customerId) return;
+
+    const freshCustomer = await fetchFreshCustomer(
+      customerId,
+      selectedCustomer.name || selectedCustomer.customerCode || ''
     );
 
-    if (notification.path) navigate(notification.path);
-    setNotificationsOpen(false);
+    if (freshCustomer) {
+      setSelectedCustomer(freshCustomer);
+    }
+  }, [fetchFreshCustomer, selectedCustomer?._id, selectedCustomer?.name, selectedCustomer?.customerCode]);
+
+  const selectCustomer = async (customer) => {
+    // Show immediately, then replace it with the newest API data.
+    setSelectedCustomer(customer);
+
+    const freshCustomer = await fetchFreshCustomer(
+      customer._id,
+      customer.name || customer.customerCode || ''
+    );
+
+    if (freshCustomer) {
+      setSelectedCustomer(freshCustomer);
+    }
   };
 
-  const markAllRead = () => {
-    setNotifications((current) =>
-      current.map((item) => ({ ...item, unread: false }))
+  /*
+   * Keep the open customer card synchronized when customer data changes.
+   * It refreshes when the browser regains focus, every 5 seconds while open,
+   * and when another component dispatches a `customer:updated` event.
+   */
+  useEffect(() => {
+    if (!selectedCustomer?._id || !searchOpen) return undefined;
+
+    const handleCustomerUpdated = (event) => {
+      const updatedCustomer = event?.detail?.customer;
+      const updatedCustomerId =
+        event?.detail?.customerId || updatedCustomer?._id;
+
+      if (updatedCustomerId && updatedCustomerId !== selectedCustomer._id) {
+        return;
+      }
+
+      if (updatedCustomer) {
+        setSelectedCustomer((current) => ({
+          ...current,
+          ...updatedCustomer,
+        }));
+      } else {
+        refreshSelectedCustomer();
+      }
+    };
+
+    const handleWindowFocus = () => refreshSelectedCustomer();
+    const intervalId = window.setInterval(refreshSelectedCustomer, 5000);
+
+    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener('customer:updated', handleCustomerUpdated);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', handleWindowFocus);
+      window.removeEventListener('customer:updated', handleCustomerUpdated);
+    };
+  }, [searchOpen, selectedCustomer?._id, refreshSelectedCustomer]);
+
+  const goBackToSearchResults = () => {
+    setSelectedCustomer(null);
+    requestAnimationFrame(() => searchInputRef.current?.focus());
+  };
+
+  const toggleNotifications = () => {
+    setNotificationsOpen((current) => !current);
+    setSearchOpen(false);
+  };
+
+  const markNotificationRead = (id) => {
+    setReadNotificationIds((current) =>
+      current.includes(id) ? current : [...current, id]
+    );
+  };
+
+  const markAllAsRead = () => {
+    setReadNotificationIds(
+      paymentNotifications.map((notification) => notification.id)
     );
   };
 
@@ -171,6 +348,7 @@ export default function Navbar() {
       <header className="h-16 flex items-center justify-between px-6 glass-card border-b border-white/8 flex-shrink-0 relative z-40">
         <div>
           <h1 className="text-lg font-semibold text-white">{pageTitle}</h1>
+
           <p className="text-xs text-slate-500">
             {new Date().toLocaleDateString('en-PK', {
               weekday: 'long',
@@ -183,16 +361,18 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <button
-            id="navbar-search-btn"
+            id="navbar-customer-search-btn"
             type="button"
             onClick={() => {
               setSearchOpen(true);
               setNotificationsOpen(false);
             }}
             className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-400 bg-white/5 hover:bg-white/8 border border-white/8 transition-colors"
+            aria-label="Search customers"
           >
             <Search size={15} />
-            <span>Quick search…</span>
+            <span>Search customer...</span>
+
             <kbd className="text-xs bg-white/10 px-1.5 py-0.5 rounded text-slate-500">
               Ctrl K
             </kbd>
@@ -200,9 +380,12 @@ export default function Navbar() {
 
           <button
             type="button"
-            onClick={() => setSearchOpen(true)}
-            className="md:hidden w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/5"
-            aria-label="Open quick search"
+            onClick={() => {
+              setSearchOpen(true);
+              setNotificationsOpen(false);
+            }}
+            className="md:hidden w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+            aria-label="Search customers"
           >
             <Search size={18} />
           </button>
@@ -211,13 +394,9 @@ export default function Navbar() {
             <button
               id="navbar-notifications-btn"
               type="button"
-              onClick={() => {
-                setNotificationsOpen((value) => !value);
-                setSearchOpen(false);
-              }}
+              onClick={toggleNotifications}
               className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
-              aria-label="Notifications"
-              aria-expanded={notificationsOpen}
+              aria-label="Payment notifications"
             >
               <Bell size={18} />
 
@@ -229,22 +408,24 @@ export default function Navbar() {
             </button>
 
             {notificationsOpen && (
-              <div className="absolute right-0 mt-2 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-white/10 bg-[#0c1220] shadow-2xl">
+              <div className="absolute right-0 mt-2 w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl overflow-hidden border border-white/10 bg-[#0c1220] shadow-2xl">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
                   <div>
                     <h2 className="text-sm font-semibold text-white">
-                      Notifications
+                      Payment Received
                     </h2>
+
                     <p className="text-xs text-slate-500">
-                      {unreadCount} unread
+                      {unreadCount} unread payment
+                      {unreadCount === 1 ? '' : 's'}
                     </p>
                   </div>
 
                   {unreadCount > 0 && (
                     <button
                       type="button"
-                      onClick={markAllRead}
-                      className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
+                      onClick={markAllAsRead}
+                      className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300"
                     >
                       <CheckCheck size={14} />
                       Mark all read
@@ -253,38 +434,84 @@ export default function Navbar() {
                 </div>
 
                 <div className="max-h-80 overflow-y-auto">
-                  {notifications.map((notification) => (
-                    <button
-                      key={notification.id}
-                      type="button"
-                      onClick={() => openNotification(notification)}
-                      className={`w-full px-4 py-3 text-left border-b border-white/5 hover:bg-white/5 transition-colors ${
-                        notification.unread ? 'bg-indigo-500/[0.06]' : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span
-                          className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${
-                            notification.unread
-                              ? 'bg-indigo-500'
-                              : 'bg-slate-700'
-                          }`}
-                        />
+                  {notificationsLoading ? (
+                    <div className="px-4 py-10 text-center">
+                      <div className="mx-auto h-6 w-6 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+                      <p className="mt-3 text-sm text-slate-400">
+                        Loading payments...
+                      </p>
+                    </div>
+                  ) : paymentNotifications.length === 0 ? (
+                    <div className="px-4 py-10 text-center">
+                      <WalletCards
+                        size={28}
+                        className="mx-auto mb-3 text-slate-600"
+                      />
+                      <p className="text-sm text-slate-400">
+                        No payment received notifications.
+                      </p>
+                    </div>
+                  ) : (
+                    paymentNotifications.map((notification) => {
+                      const isRead = readNotificationIds.includes(
+                        notification.id
+                      );
 
-                        <div>
-                          <p className="text-sm font-medium text-white">
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            {notification.message}
-                          </p>
-                          <p className="text-[11px] text-slate-600 mt-1">
-                            {notification.time}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+                      return (
+                        <button
+                          key={notification.id}
+                          type="button"
+                          onClick={() =>
+                            markNotificationRead(notification.id)
+                          }
+                          className={`w-full px-4 py-3 text-left border-b border-white/5 hover:bg-white/5 transition-colors ${
+                            isRead ? '' : 'bg-emerald-500/[0.06]'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                              <WalletCards size={17} />
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="text-sm font-semibold text-white truncate">
+                                  Payment received
+                                </p>
+
+                                {!isRead && (
+                                  <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                                )}
+                              </div>
+
+                              <p className="text-xs text-slate-400 mt-1">
+                                Rs. {Number(notification.amount || 0).toLocaleString()}
+                                {' '}received from{' '}
+                                <span className="text-slate-200">
+                                  {notification.customerName}
+                                </span>
+                              </p>
+
+                              <div className="flex items-center justify-between gap-3 mt-1.5">
+                                <p className="text-[11px] text-slate-600 capitalize">
+                                  {notification.method}
+                                  {notification.reference
+                                    ? ` • ${notification.reference}`
+                                    : ''}
+                                </p>
+
+                                <p className="text-[11px] text-slate-600">
+                                  {notification.createdAt
+                                    ? formatDate(notification.createdAt)
+                                    : '—'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             )}
@@ -299,6 +526,7 @@ export default function Navbar() {
               <p className="text-xs font-semibold text-white leading-none">
                 {user?.name || 'Admin'}
               </p>
+
               <p className="text-xs text-indigo-400 capitalize">
                 {user?.role || 'admin'}
               </p>
@@ -311,58 +539,227 @@ export default function Navbar() {
         <div
           className="fixed inset-0 z-[100] flex items-start justify-center bg-black/70 px-4 pt-24 backdrop-blur-sm"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setSearchOpen(false);
+            if (event.target === event.currentTarget) {
+              setSearchOpen(false);
+            }
           }}
         >
           <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-[#0c1220] shadow-2xl">
             <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
-              <Search size={18} className="text-slate-500" />
+              {selectedCustomer ? (
+                <button
+                  type="button"
+                  onClick={goBackToSearchResults}
+                  className="text-xs font-medium text-indigo-400 hover:text-indigo-300"
+                >
+                  Back
+                </button>
+              ) : (
+                <Search size={18} className="text-slate-500" />
+              )}
 
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search pages..."
-                className="flex-1 bg-transparent text-sm text-white placeholder-slate-500 outline-none"
-              />
+              {!selectedCustomer && (
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search customer by name, code, phone or email..."
+                  className="flex-1 bg-transparent text-sm text-white placeholder-slate-500 outline-none"
+                />
+              )}
+
+              {selectedCustomer && (
+                <p className="flex-1 text-sm font-semibold text-white">
+                  Customer Details
+                </p>
+              )}
 
               <button
                 type="button"
                 onClick={() => setSearchOpen(false)}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/5"
-                aria-label="Close search"
+                className="rounded-lg p-1.5 text-slate-500 hover:bg-white/5 hover:text-white"
+                aria-label="Close customer search"
               >
                 <X size={17} />
               </button>
             </div>
 
-            <div className="max-h-[420px] overflow-y-auto p-2">
-              {filteredItems.length > 0 ? (
-                filteredItems.map((item) => {
-                  const Icon = item.icon;
+            <div className="max-h-[460px] overflow-y-auto p-2">
+              {selectedCustomer ? (
+                <div className="p-4">
+                  <div className="flex items-center gap-4 pb-5 border-b border-white/10">
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center text-lg font-bold">
+                      {getInitials(selectedCustomer.name || 'Customer')}
+                    </div>
 
-                  return (
-                    <button
-                      key={item.path}
-                      type="button"
-                      onClick={() => navigateTo(item.path)}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
-                    >
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5">
-                        <Icon size={17} />
-                      </span>
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">
+                        {selectedCustomer.name || 'Unnamed customer'}
+                      </h2>
 
-                      <div>
-                        <p className="text-sm font-medium">{item.label}</p>
-                        <p className="text-xs text-slate-600">{item.path}</p>
+                      <p className="text-sm text-indigo-400">
+                        {selectedCustomer.customerCode || 'No customer code'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-3 mt-5">
+                    <div className="rounded-xl bg-white/[0.03] border border-white/8 p-3">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-600">
+                        Phone
+                      </p>
+                      <p className="mt-1 flex items-center gap-2 text-sm text-slate-200">
+                        <Phone size={14} className="text-slate-500" />
+                        {selectedCustomer.phone || '—'}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl bg-white/[0.03] border border-white/8 p-3">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-600">
+                        Email
+                      </p>
+                      <p className="mt-1 flex items-center gap-2 text-sm text-slate-200 break-all">
+                        <Mail size={14} className="text-slate-500" />
+                        {selectedCustomer.email || '—'}
+                      </p>
+                    </div>
+
+                    <div className="sm:col-span-2 rounded-xl bg-white/[0.03] border border-white/8 p-3">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-600">
+                        Address
+                      </p>
+                      <p className="mt-1 flex items-start gap-2 text-sm text-slate-200">
+                        <MapPin
+                          size={14}
+                          className="mt-0.5 text-slate-500 flex-shrink-0"
+                        />
+                        {selectedCustomer.address || '—'}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl bg-white/[0.03] border border-white/8 p-3">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-600">
+                        Gender
+                      </p>
+                      <p className="mt-1 text-sm text-slate-200 capitalize">
+                        {selectedCustomer.gender || '—'}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl bg-white/[0.03] border border-white/8 p-3">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-600">
+                        Status
+                      </p>
+                      <p className="mt-1 text-sm text-slate-200 capitalize">
+                        {selectedCustomer.status || 'active'}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl bg-white/[0.03] border border-white/8 p-3">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-600">
+                        Balance
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-amber-400">
+                        Rs.{' '}
+                        {Number(
+                          selectedCustomer.balance ??
+                            selectedCustomer.ledgerBalance ??
+                            0
+                        ).toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl bg-white/[0.03] border border-white/8 p-3">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-600">
+                        Quantity
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-slate-200">
+                        {selectedCustomer.quantity ?? 0}
+                      </p>
+                    </div>
+                  </div>
+
+                  {selectedCustomer.notes && (
+                    <div className="rounded-xl bg-white/[0.03] border border-white/8 p-3 mt-3">
+                      <p className="text-[11px] uppercase tracking-wide text-slate-600">
+                        Notes
+                      </p>
+                      <p className="mt-1 text-sm text-slate-300 whitespace-pre-wrap">
+                        {selectedCustomer.notes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : searchQuery.trim().length < 2 ? (
+                <div className="px-4 py-10 text-center">
+                  <UserRound
+                    size={30}
+                    className="mx-auto mb-3 text-slate-600"
+                  />
+                  <p className="text-sm text-slate-400">
+                    Enter at least 2 letters to search customers.
+                  </p>
+                </div>
+              ) : searchLoading ? (
+                <div className="px-4 py-10 text-center">
+                  <div className="mx-auto mb-3 h-6 w-6 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+                  <p className="text-sm text-slate-400">
+                    Searching customers...
+                  </p>
+                </div>
+              ) : customers.length > 0 ? (
+                customers.map((customer) => (
+                  <button
+                    key={customer._id}
+                    type="button"
+                    onClick={() => selectCustomer(customer)}
+                    className="w-full rounded-xl px-3 py-3 text-left hover:bg-white/5 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center font-semibold flex-shrink-0">
+                        {getInitials(customer.name || 'Customer')}
                       </div>
-                    </button>
-                  );
-                })
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-white truncate">
+                            {customer.name || 'Unnamed customer'}
+                          </p>
+
+                          <span className="text-[11px] text-indigo-400">
+                            {customer.customerCode || 'No code'}
+                          </span>
+                        </div>
+
+                        <div className="mt-2 grid gap-1 text-xs text-slate-500">
+                          {customer.phone && (
+                            <p className="flex items-center gap-1.5">
+                              <Phone size={12} />
+                              {customer.phone}
+                            </p>
+                          )}
+
+                          {customer.email && (
+                            <p className="flex items-center gap-1.5 truncate">
+                              <Mail size={12} />
+                              {customer.email}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))
               ) : (
-                <div className="px-4 py-10 text-center text-sm text-slate-500">
-                  No page found for “{searchQuery}”
+                <div className="px-4 py-10 text-center">
+                  <Search
+                    size={28}
+                    className="mx-auto mb-3 text-slate-600"
+                  />
+                  <p className="text-sm text-slate-400">
+                    No customer found for “{searchQuery}”.
+                  </p>
                 </div>
               )}
             </div>
