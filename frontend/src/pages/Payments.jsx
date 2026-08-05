@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { Plus, Search, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTheme } from '../context/ThemeContext';
 import PageHeader from '../components/common/PageHeader';
 import DataTable from '../components/common/DataTable';
 import Modal from '../components/common/Modal';
@@ -31,6 +32,8 @@ const TYPE_COLORS = {
 };
 
 export default function Payments() {
+  const { currentThemeObj } = useTheme();
+  const isDark = currentThemeObj?.isDark;
   const [payments, setPayments]   = useState([]);
   const [customers, setCustomers] = useState([]);
   const [orders, setOrders]       = useState([]);
@@ -64,12 +67,12 @@ export default function Payments() {
 
   const columns = [
     { key: 'paymentDate', label: 'Date', sortable: true, render: (v) => formatDate(v) },
-    { key: 'customerId', label: 'Customer', render: (v) => <span className="font-medium text-slate-200">{v?.name ?? '—'}</span> },
-    { key: 'orderId', label: 'Order #', render: (v) => v?.orderNo ? <span className="font-mono text-xs text-indigo-400">{v.orderNo}</span> : '—' },
-    { key: 'amount', label: 'Amount', sortable: true, render: (v) => <span className="font-bold text-emerald-400">{formatCurrency(v)}</span> },
+    { key: 'customerId', label: 'Customer', render: (v) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{v?.name ?? '—'}</span> },
+    { key: 'orderId', label: 'Order #', render: (v) => v?.orderNo ? <span className="font-mono text-xs" style={{ color: 'var(--primary)' }}>{v.orderNo}</span> : '—' },
+    { key: 'amount', label: 'Amount', sortable: true, render: (v) => <span className="font-bold" style={{ color: 'var(--success)' }}>{formatCurrency(v)}</span> },
     { key: 'paymentMethod', label: 'Method', render: (v) => <Badge label={v} className={METHOD_COLORS[v] ?? 'bg-slate-500/20 text-slate-400 border-slate-500/30'} /> },
     { key: 'paymentType', label: 'Type', render: (v) => <Badge label={v} className={TYPE_COLORS[v] ?? 'bg-slate-500/20 text-slate-400 border-slate-500/30'} /> },
-    { key: 'transactionId', label: 'Txn ID', render: (v) => v ? <span className="font-mono text-xs text-slate-500">{v}</span> : '—' },
+    { key: 'transactionId', label: 'Txn ID', render: (v) => v ? <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>{v}</span> : '—' },
   ];
 
   return (
@@ -78,7 +81,7 @@ export default function Payments() {
         title="Payments"
         subtitle={`${payments.length} payment records`}
         actions={
-          <button id="add-payment-btn" onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors glow-indigo">
+          <button id="add-payment-btn" onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold transition-colors glow-indigo" style={{ backgroundColor: 'var(--primary)' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
             <Plus size={16} /> Record Payment
           </button>
         }
@@ -87,14 +90,14 @@ export default function Payments() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Total Received', value: payments.filter(p => p.paymentType !== 'refund').reduce((s, p) => s + p.amount, 0), color: 'text-emerald-400' },
-          { label: 'Advance', value: payments.filter(p => p.paymentType === 'advance').reduce((s, p) => s + p.amount, 0), color: 'text-amber-400' },
-          { label: 'Full Payments', value: payments.filter(p => p.paymentType === 'full').reduce((s, p) => s + p.amount, 0), color: 'text-blue-400' },
-          { label: 'Refunds', value: payments.filter(p => p.paymentType === 'refund').reduce((s, p) => s + p.amount, 0), color: 'text-rose-400' },
+          { label: 'Total Received', value: payments.filter(p => p.paymentType !== 'refund').reduce((s, p) => s + p.amount, 0), color: 'var(--success)' },
+          { label: 'Advance', value: payments.filter(p => p.paymentType === 'advance').reduce((s, p) => s + p.amount, 0), color: 'var(--warning)' },
+          { label: 'Full Payments', value: payments.filter(p => p.paymentType === 'full').reduce((s, p) => s + p.amount, 0), color: 'var(--info)' },
+          { label: 'Refunds', value: payments.filter(p => p.paymentType === 'refund').reduce((s, p) => s + p.amount, 0), color: 'var(--danger)' },
         ].map(({ label, value, color }) => (
-          <div key={label} className="glass-card rounded-xl border border-white/8 p-4">
-            <p className="text-xs text-slate-400">{label}</p>
-            <p className={`text-lg font-bold mt-1 ${color}`}>{formatCurrency(value)}</p>
+          <div key={label} className="glass-card rounded-xl border p-4" style={{ borderColor: 'var(--border-color)' }}>
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{label}</p>
+            <p className="text-lg font-bold mt-1" style={{ color }}>{formatCurrency(value)}</p>
           </div>
         ))}
       </div>

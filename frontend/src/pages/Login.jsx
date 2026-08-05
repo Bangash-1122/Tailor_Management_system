@@ -3,10 +3,13 @@ import { Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Scissors, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 
 export default function Login() {
   const { login, isAuthenticated, loading } = useAuth();
+  const { currentThemeObj } = useTheme();
+  const isDark = currentThemeObj?.isDark;
   const [showPass, setShowPass] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
 
@@ -32,10 +35,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ backgroundColor: 'var(--app-background)' }}>
       {/* Background orbs */}
-      <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full blur-3xl pointer-events-none" style={{ backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(109, 93, 246, 0.15)' }} />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ backgroundColor: isDark ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.12)' }} />
 
       <div className="w-full max-w-md animate-fade-in-up">
         {/* Logo */}
@@ -43,19 +46,19 @@ export default function Login() {
           <div className="inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 items-center justify-center mb-4 glow-indigo">
             <Scissors size={28} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Tailor Pro</h1>
-          <p className="text-slate-400 text-sm mt-1">Advanced Tailor Management System</p>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Tailor Pro</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Advanced Tailor Management System</p>
         </div>
 
         {/* Card */}
-        <div className="glass-card rounded-2xl border border-white/10 p-8">
-          <h2 className="text-lg font-semibold text-white mb-1">Welcome back</h2>
-          <p className="text-slate-400 text-sm mb-6">Sign in to your account</p>
+        <div className="glass-card rounded-2xl border p-8" style={{ borderColor: 'var(--border-color)' }}>
+          <h2 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Welcome back</h2>
+          <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>Sign in to your account</p>
 
           <form id="login-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Email */}
             <div>
-              <label htmlFor="login-email" className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label htmlFor="login-email" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Email address
               </label>
               <input
@@ -63,8 +66,13 @@ export default function Login() {
                 type="email"
                 autoComplete="email"
                 placeholder="admin@tailor.com"
-                className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border ${errors.email ? 'border-rose-500/60' : 'border-white/10'
-                  } text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-colors text-sm`}
+                className={`w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none transition-colors`}
+                style={{
+                  backgroundColor: 'var(--form-background)',
+                  color: 'var(--text-primary)',
+                  borderColor: errors.email ? 'var(--danger)' : 'var(--border-color)',
+                  border: '1px solid'
+                }}
                 {...register('email', {
                   required: 'Email is required',
 
@@ -77,12 +85,12 @@ export default function Login() {
                   },
                 })}
               />
-              {errors.email && <p className="mt-1 text-xs text-rose-400">{errors.email.message}</p>}
+              {errors.email && <p className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>{errors.email.message}</p>}
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="login-password" className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label htmlFor="login-password" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Password
               </label>
               <div className="relative">
@@ -91,8 +99,13 @@ export default function Login() {
                   type={showPass ? 'text' : 'password'}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className={`w-full px-4 py-2.5 pr-11 rounded-xl bg-white/5 border ${errors.password ? 'border-rose-500/60' : 'border-white/10'
-                    } text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-colors text-sm`}
+                  className={`w-full px-4 py-2.5 pr-11 rounded-xl text-sm focus:outline-none transition-colors`}
+                  style={{
+                    backgroundColor: 'var(--form-background)',
+                    color: 'var(--text-primary)',
+                    borderColor: errors.password ? 'var(--danger)' : 'var(--border-color)',
+                    border: '1px solid'
+                  }}
                   {...register('password', {
                     required: 'Password is required',
                     minLength: {
@@ -105,12 +118,15 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
                 >
                   {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {errors.password && <p className="mt-1 text-xs text-rose-400">{errors.password.message}</p>}
+              {errors.password && <p className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>{errors.password.message}</p>}
             </div>
 
             {/* Submit */}
@@ -118,7 +134,14 @@ export default function Login() {
               id="login-submit-btn"
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold text-sm hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 glow-indigo"
+              className="w-full mt-2 py-2.5 px-4 rounded-xl text-white font-semibold text-sm focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 glow-indigo"
+              style={{ 
+                backgroundImage: 'linear-gradient(to right, var(--primary), #8b5cf6)',
+                opacity: loading ? 0.6 : 1,
+                cursor: loading ? 'not-allowed' : 'pointer'
+              }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.opacity = '0.9'; }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.opacity = '1'; }}
             >
               {loading && <Loader2 size={16} className="animate-spin" />}
               {loading ? 'Signing in…' : 'Sign in'}
@@ -126,7 +149,7 @@ export default function Login() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-600 mt-6">
+        <p className="text-center text-xs mt-6" style={{ color: 'var(--text-muted)' }}>
           © {new Date().getFullYear()} Tailor Pro. All rights reserved.
         </p>
       </div>

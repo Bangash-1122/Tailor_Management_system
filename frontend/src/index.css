@@ -2,6 +2,178 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Complete Multi-Theme Design System ─── */
+
+:root,
+[data-theme="dark"],
+html.dark {
+  --app-background: #0a0f1e;
+  --sidebar-background: rgba(255, 255, 255, 0.04);
+  --navbar-background: rgba(255, 255, 255, 0.04);
+  --card-background: rgba(255, 255, 255, 0.04);
+  --surface-background: rgba(255, 255, 255, 0.04);
+  --surface-hover: rgba(255, 255, 255, 0.05);
+  --surface-subtle: rgba(255, 255, 255, 0.03);
+  --input-background: rgba(255, 255, 255, 0.05);
+  --dropdown-background: #0c1220;
+  --modal-background: #0c1220;
+  --table-background: transparent;
+  --table-header-background: rgba(255, 255, 255, 0.02);
+  --table-row-hover: rgba(255, 255, 255, 0.03);
+
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #0f172a;
+
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --divider-color: rgba(255, 255, 255, 0.05);
+
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-soft: rgba(99, 102, 241, 0.15);
+  --primary-foreground: #ffffff;
+
+  --success: #10b981;
+  --success-soft: rgba(16, 185, 129, 0.15);
+  --warning: #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.15);
+  --danger: #f43f5e;
+  --danger-soft: rgba(244, 63, 94, 0.15);
+  --info: #3b82f6;
+  --info-soft: rgba(59, 130, 246, 0.15);
+
+  --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+  --shadow-popup: 0 20px 40px 0 rgba(0, 0, 0, 0.5);
+
+  --chart-grid: #1e2d52;
+  --chart-axis: #64748b;
+  --chart-tooltip-background: #0f172a;
+  --chart-tooltip-border: rgba(255, 255, 255, 0.15);
+  --chart-tooltip-title: #94a3b8;
+  --chart-tooltip-text: #ffffff;
+
+  --scrollbar-track: #0f1629;
+  --scrollbar-thumb: #334155;
+
+  --glass-blur: blur(16px);
+}
+
+html.light,
+[data-theme^="light"] {
+  --app-background: #F5F7FB;
+  --content-background: #F5F7FB;
+  --sidebar-background: #FFFFFF;
+  --navbar-background: #FFFFFF;
+  --card-background: #FFFFFF;
+  --elevated-surface: #FFFFFF;
+  --surface-background: #FFFFFF;
+  --surface-hover: #F8FAFC;
+  --surface-subtle: #F8FAFC;
+  --input-background: #F8FAFC;
+  --dropdown-background: #FFFFFF;
+  --modal-background: #FFFFFF;
+  --table-background: #FFFFFF;
+  --table-header-background: #FAFBFC;
+  --table-row-hover: #F8FAFC;
+
+  --text-primary: #111827;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-inverse: #FFFFFF;
+  --placeholder: #9CA3AF;
+
+  --border-color: #E5E7EB;
+  --border-subtle: #E2E8F0;
+  --divider-color: #E8ECF2;
+
+  --success: #10B981;
+  --success-soft: rgba(16, 185, 129, 0.1);
+  --warning: #F59E0B;
+  --warning-soft: rgba(245, 158, 11, 0.1);
+  --danger: #F43F5E;
+  --danger-soft: rgba(244, 63, 94, 0.1);
+  --info: #3B82F6;
+  --info-soft: rgba(59, 130, 246, 0.1);
+
+  --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-popup: 0 16px 40px rgba(15, 23, 42, 0.14);
+
+  --chart-grid: #CBD5E1;
+  --chart-axis: #64748B;
+  --chart-tooltip-background: #FFFFFF;
+  --chart-tooltip-border: #E2E8F0;
+  --chart-tooltip-title: #64748B;
+  --chart-tooltip-text: #0F172A;
+  --chart-tooltip-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+
+  --scrollbar-track: #F1F5F9;
+  --scrollbar-thumb: #CBD5E1;
+
+  --glass-blur: none;
+}
+
+[data-theme="light-purple"] {
+  --primary: #6D5DF6;
+  --primary-hover: #5B4BE8;
+  --primary-soft: #F0EDFF;
+  --primary-foreground: #FFFFFF;
+}
+
+[data-theme="light-blue"] {
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-soft: #EAF2FF;
+  --primary-foreground: #FFFFFF;
+}
+
+[data-theme="light-green"] {
+  --primary: #10B981;
+  --primary-hover: #059669;
+  --primary-soft: #E8F8F2;
+  --primary-foreground: #FFFFFF;
+}
+
+[data-theme="light-orange"] {
+  --primary: #F59E0B;
+  --primary-hover: #D97706;
+  --primary-soft: #FFF4DE;
+  --primary-foreground: #FFFFFF;
+}
+
+[data-theme="light-pink"] {
+  --primary: #EC4899;
+  --primary-hover: #DB2777;
+  --primary-soft: #FDECF5;
+  --primary-foreground: #FFFFFF;
+}
+
+[data-theme="light-teal"] {
+  --primary: #14B8A6;
+  --primary-hover: #0F9488;
+  --primary-soft: #E7F8F6;
+  --primary-foreground: #FFFFFF;
+}
+
+/* ─── Global Smooth Theme Transition ─── */
+body,
+div,
+header,
+aside,
+nav,
+table,
+tr,
+th,
+td,
+button,
+input,
+select,
+textarea,
+main {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
 /* ─── Base resets ─── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -16,23 +188,186 @@ html {
 }
 
 body {
-  background-color: #0a0f1e;
-  color: #e2e8f0;
+  background-color: var(--app-background);
+  color: var(--text-primary);
   min-height: 100vh;
 }
 
 /* ─── Custom Scrollbar ─── */
 ::-webkit-scrollbar         { width: 6px; height: 6px; }
-::-webkit-scrollbar-track   { background: #0f1629; }
-::-webkit-scrollbar-thumb   { background: #334155; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+::-webkit-scrollbar-track   { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb   { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 /* ─── Glassmorphism card ─── */
 .glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--card-background);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+}
+
+/* ─── Dynamic Light Theme Utility Overrides ─── */
+html.light body {
+  background-color: var(--app-background);
+  color: var(--text-primary);
+}
+
+html.light .glass-card {
+  background: var(--card-background);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-card);
+}
+
+/* Ensure Headings and KPI metric values are crisp & visible */
+html.light h1:not([class*="text-indigo"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-violet"]):not([class*="text-blue"]),
+html.light h2:not([class*="text-indigo"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-violet"]):not([class*="text-blue"]),
+html.light h3:not([class*="text-indigo"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-violet"]):not([class*="text-blue"]),
+html.light h4:not([class*="text-indigo"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-violet"]):not([class*="text-blue"]) {
+  color: var(--text-primary) !important;
+}
+
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: var(--text-primary) !important;
+}
+
+html.light .text-slate-400 {
+  color: var(--text-secondary) !important;
+}
+
+html.light .text-slate-500,
+html.light .text-slate-600 {
+  color: var(--text-muted) !important;
+}
+
+/* Prevent opacity-0 on hover in KPI cards */
+html.light .hover\:opacity-0:hover {
+  opacity: 1 !important;
+}
+
+/* Borders in Light Mode */
+html.light .border-white\/5,
+html.light .border-white\/8,
+html.light .border-white\/10,
+html.light .border-white\/15 {
+  border-color: var(--border-color) !important;
+}
+
+/* Backgrounds in Light Mode */
+html.light .bg-white\/5,
+html.light .bg-white\/8,
+html.light .bg-white\/10 {
+  background-color: var(--surface-subtle) !important;
+}
+
+/* Handle bracketed opacity values */
+html.light [class*="bg-white\/"] {
+  background-color: var(--surface-subtle) !important;
+}
+
+/* Handle border-white opacity values */
+html.light [class*="border-white\/"] {
+  border-color: var(--border-subtle) !important;
+}
+
+/* Fix text-white in light mode for status cards and similar */
+html.light .text-white {
+  color: var(--text-primary) !important;
+}
+
+/* Fix text-slate-200, text-slate-300 in light mode */
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: var(--text-primary) !important;
+}
+
+/* Fix text-slate-400 in light mode */
+html.light .text-slate-400 {
+  color: var(--text-secondary) !important;
+}
+
+/* Fix text-slate-500, text-slate-600 in light mode */
+html.light .text-slate-500,
+html.light .text-slate-600 {
+  color: var(--text-muted) !important;
+}
+
+html.light .bg-\[\#0a0f1e\],
+html.light .bg-\[\#0f1629\],
+html.light .bg-\[\#0c1220\],
+html.light .bg-slate-800,
+html.light .bg-black\/60,
+html.light .bg-black\/70 {
+  background-color: var(--modal-background) !important;
+}
+
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light select,
+html.light textarea {
+  background-color: var(--input-background) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.light select option {
+  background-color: #ffffff !important;
+  color: #0F172A !important;
+}
+
+/* Primary Accent Overrides for Buttons & Highlights */
+html.light .bg-indigo-600 {
+  background-color: var(--primary) !important;
+}
+
+html.light .hover\:bg-indigo-500:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+html.light .text-indigo-400,
+html.light .text-indigo-300 {
+  color: var(--primary) !important;
+}
+
+html.light .border-indigo-500\/30,
+html.light .border-indigo-500\/20 {
+  border-color: var(--primary) !important;
+}
+
+html.light .bg-indigo-500\/15,
+html.light .bg-indigo-500\/20,
+html.light .bg-indigo-600\/20 {
+  background-color: var(--primary-soft) !important;
+}
+
+/* Sidebar & Table overrides in Light mode */
+html.light aside {
+  background-color: var(--sidebar-background) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.light header {
+  background-color: var(--navbar-background) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.light table tr.border-b {
+  border-color: var(--border-color) !important;
+}
+
+html.light table tr:hover {
+  background-color: var(--table-row-hover) !important;
+}
+
+html.light table th {
+  background-color: var(--table-header-background) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Modals & Dropdowns in Light mode */
+html.light .fixed.inset-0 {
+  background-color: rgba(15, 23, 42, 0.4) !important;
 }
 
 /* ─── Glow helpers ─── */
@@ -81,5 +416,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
+html.light input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+}
+
 /* ─── Table helpers ─── */
 table { border-collapse: collapse; width: 100%; }
+
+/* ─── Print Pages Excluded From Theme Styling ─── */
+@media print {
+  body, html, main, div, table {
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+  }
+}

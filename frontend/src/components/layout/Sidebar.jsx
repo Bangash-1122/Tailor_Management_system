@@ -6,6 +6,7 @@ import {
   ChevronLeft, ChevronRight, LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const NAV_ITEMS = [
   { to: '/',            icon: LayoutDashboard, label: 'Dashboard' },
@@ -23,24 +24,32 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { logout, user } = useAuth();
+  const { currentThemeObj } = useTheme();
   const location = useLocation();
+  const isDark = currentThemeObj?.isDark;
 
   return (
     <aside
-      className={`relative flex flex-col h-screen transition-all duration-300 ease-in-out glass-card border-r border-white/8 ${
+      className={`relative flex flex-col h-screen transition-all duration-300 ease-in-out glass-card border-r ${
         collapsed ? 'w-18' : 'w-64'
       }`}
-      style={{ minWidth: collapsed ? '72px' : '256px' }}
+      style={{
+        minWidth: collapsed ? '72px' : '256px',
+        borderColor: 'var(--border-color)',
+      }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-white/8">
+      <div 
+        className="flex items-center gap-3 px-4 py-5 border-b"
+        style={{ borderColor: 'var(--border-color)' }}
+      >
         <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center glow-indigo">
           <Scissors size={18} className="text-white" />
         </div>
         {!collapsed && (
           <div className="animate-fade-in overflow-hidden">
-            <p className="text-sm font-bold text-white leading-none">Tailor Pro</p>
-            <p className="text-xs text-slate-400 mt-0.5">Management System</p>
+            <p className="text-sm font-bold leading-none" style={{ color: 'var(--text-primary)' }}>Tailor Pro</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Management System</p>
           </div>
         )}
       </div>
@@ -49,7 +58,11 @@ export default function Sidebar() {
       <button
         id="sidebar-toggle"
         onClick={() => setCollapsed((c) => !c)}
-        className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-indigo-600 border border-indigo-400 flex items-center justify-center text-white hover:bg-indigo-500 transition-colors z-10 shadow-lg"
+        className="absolute -right-3 top-16 w-6 h-6 rounded-full border flex items-center justify-center text-white hover:bg-indigo-500 transition-colors z-10 shadow-lg"
+        style={{
+          backgroundColor: 'var(--primary)',
+          borderColor: 'var(--primary-hover)',
+        }}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
@@ -67,10 +80,27 @@ export default function Sidebar() {
               to={to}
               id={`nav-${label.toLowerCase()}`}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative ${
-                isActive
-                  ? 'bg-indigo-600/20 text-indigo-300 glow-indigo border border-indigo-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                isActive ? 'border' : ''
               }`}
+              style={isActive ? {
+                backgroundColor: 'var(--primary-soft)',
+                color: 'var(--primary)',
+                borderColor: 'var(--primary)',
+              } : {
+                color: 'var(--text-secondary)',
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'var(--surface-hover)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                }
+              }}
             >
               <Icon
                 size={18}
@@ -83,7 +113,13 @@ export default function Sidebar() {
               )}
               {/* Tooltip when collapsed */}
               {collapsed && (
-                <div className="absolute left-full ml-3 px-2 py-1 bg-slate-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-white/10">
+                <div 
+                  className="absolute left-full ml-3 px-2 py-1 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border"
+                  style={{
+                    backgroundColor: isDark ? '#1e293b' : '#334155',
+                    borderColor: 'var(--border-color)',
+                  }}
+                >
                   {label}
                 </div>
               )}
@@ -93,17 +129,27 @@ export default function Sidebar() {
       </nav>
 
       {/* User & Logout */}
-      <div className="border-t border-white/8 p-3 space-y-2">
+      <div 
+        className="border-t p-3 space-y-2"
+        style={{ borderColor: 'var(--border-color)' }}
+      >
         {!collapsed && user && (
           <div className="animate-fade-in px-2 pb-1">
-            <p className="text-xs font-semibold text-white truncate">{user.name}</p>
-            <p className="text-xs text-indigo-400 capitalize">{user.role}</p>
+            <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user.name}</p>
+            <p className="text-xs capitalize" style={{ color: 'var(--primary)' }}>{user.role}</p>
           </div>
         )}
         <button
           id="logout-btn"
           onClick={logout}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all duration-200 group"
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group hover:bg-rose-500/10"
+          style={{ color: 'var(--danger)' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--danger)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--danger)';
+          }}
           aria-label="Logout"
         >
           <LogOut size={18} className="flex-shrink-0 group-hover:scale-110 transition-transform" />

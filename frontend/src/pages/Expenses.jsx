@@ -109,7 +109,22 @@ export default function Expenses() {
               <CartesianGrid strokeDasharray="3 3" stroke="#1e2d52" />
               <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v) => [formatCurrency(v)]} contentStyle={{ background: '#0f1629', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12, color: '#e2e8f0' }} itemStyle={{ color: '#e2e8f0' }} />
+              <Tooltip
+                content={({ active, payload, label }) => {
+                  if (!active || !payload?.length) return null;
+                  return (
+                    <div className="bg-[#0f172a]/95 backdrop-blur-md border border-white/15 rounded-xl px-4 py-3 text-xs shadow-xl">
+                      <p className="text-slate-400 mb-1 font-medium">{label}</p>
+                      {payload.map((p, idx) => (
+                        <p key={idx} className="font-semibold flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: p.color || '#6366f1' }} />
+                          <span className="text-white font-bold">{formatCurrency(p.value)}</span>
+                        </p>
+                      ))}
+                    </div>
+                  );
+                }}
+              />
               <Bar dataKey="amount" fill="#6366f1" radius={[6,6,0,0]} />
             </BarChart>
           </ResponsiveContainer>

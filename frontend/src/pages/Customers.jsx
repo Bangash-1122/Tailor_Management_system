@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { Plus, Search, Edit2, Trash2, Phone, Mail, MapPin, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTheme } from '../context/ThemeContext';
 import PageHeader from '../components/common/PageHeader';
 import DataTable from '../components/common/DataTable';
 import Modal from '../components/common/Modal';
@@ -10,6 +11,8 @@ import { getCustomers, createCustomer, updateCustomer, deleteCustomer } from '..
 import { formatDate, getInitials } from '../utils/helpers';
 
 export default function Customers() {
+  const { currentThemeObj } = useTheme();
+  const isDark = currentThemeObj?.isDark;
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [search, setSearch]       = useState('');
@@ -68,24 +71,24 @@ export default function Customers() {
             {getInitials(val)}
           </div>
           <div>
-            <p className="font-medium text-slate-200">{val}</p>
-            <p className="text-xs text-slate-500 font-mono">{row.customerCode}</p>
+            <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{val}</p>
+            <p className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>{row.customerCode}</p>
           </div>
         </div>
       ),
     },
-    { key: 'phone', label: 'Phone', render: (v) => <span className="flex items-center gap-1 text-slate-400"><Phone size={12}/>{v}</span> },
-    { key: 'email', label: 'Email', render: (v) => v ? <span className="flex items-center gap-1 text-slate-400"><Mail size={12}/>{v}</span> : '—' },
-    { key: 'gender', label: 'Gender', render: (v) => <span className="capitalize text-slate-400">{v}</span> },
-    { key: 'ledgerBalance', label: 'Balance', render: (v) => <span className={`font-semibold ${v < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>Rs. {Math.abs(v || 0).toLocaleString()}</span> },
+    { key: 'phone', label: 'Phone', render: (v) => <span className="flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}><Phone size={12}/>{v}</span> },
+    { key: 'email', label: 'Email', render: (v) => v ? <span className="flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}><Mail size={12}/>{v}</span> : '—' },
+    { key: 'gender', label: 'Gender', render: (v) => <span className="capitalize" style={{ color: 'var(--text-secondary)' }}>{v}</span> },
+    { key: 'ledgerBalance', label: 'Balance', render: (v) => <span className={`font-semibold`} style={{ color: v < 0 ? 'var(--danger)' : 'var(--success)' }}>Rs. {Math.abs(v || 0).toLocaleString()}</span> },
     { key: 'status', label: 'Status', render: (v) => <Badge label={v ? 'Active' : 'Inactive'} className={v ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-slate-500/20 text-slate-400 border-slate-500/30'} /> },
     { key: 'createdAt', label: 'Joined', sortable: true, render: (v) => formatDate(v) },
     {
       key: '_id', label: 'Actions',
       render: (_, row) => (
         <div className="flex items-center gap-2">
-          <button id={`edit-customer-${row._id}`} onClick={() => openEdit(row)} className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors" aria-label="Edit"><Edit2 size={14}/></button>
-          <button id={`delete-customer-${row._id}`} onClick={() => setDeleting(row)} className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors" aria-label="Delete"><Trash2 size={14}/></button>
+          <button id={`edit-customer-${row._id}`} onClick={() => openEdit(row)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.backgroundColor = 'var(--primary-soft)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }} aria-label="Edit"><Edit2 size={14}/></button>
+          <button id={`delete-customer-${row._id}`} onClick={() => setDeleting(row)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--danger)'; e.currentTarget.style.backgroundColor = 'rgba(244, 63, 94, 0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }} aria-label="Delete"><Trash2 size={14}/></button>
         </div>
       ),
     },
@@ -97,7 +100,7 @@ export default function Customers() {
         title="Customers"
         subtitle={`${customers.length} total customers`}
         actions={
-          <button id="add-customer-btn" onClick={openAdd} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors glow-indigo">
+          <button id="add-customer-btn" onClick={openAdd} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors glow-indigo" style={{ backgroundColor: 'var(--primary)', color: 'white' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
             <Plus size={16} /> Add Customer
           </button>
         }
@@ -105,14 +108,20 @@ export default function Customers() {
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
         <input
           id="customers-search"
           type="text"
           placeholder="Search by name, phone, code…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm focus:outline-none transition-colors"
+          style={{
+            backgroundColor: 'var(--form-background)',
+            borderColor: 'var(--border-color)',
+            color: 'var(--text-primary)',
+            border: '1px solid'
+          }}
         />
       </div>
 
@@ -123,46 +132,46 @@ export default function Customers() {
         <form id="customer-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-400 mb-1">Full Name *</label>
-              <input {...register('name', { required: 'Required' })} placeholder="Muhammad Ali" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors" />
-              {errors.name && <p className="text-xs text-rose-400 mt-1">{errors.name.message}</p>}
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Full Name *</label>
+              <input {...register('name', { required: 'Required' })} placeholder="Muhammad Ali" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none transition-colors" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', border: '1px solid', color: 'var(--text-primary)' }} />
+              {errors.name && <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{errors.name.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Phone *</label>
-              <input {...register('phone', { required: 'Required' })} placeholder="03XX-XXXXXXX" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors" />
-              {errors.phone && <p className="text-xs text-rose-400 mt-1">{errors.phone.message}</p>}
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Phone *</label>
+              <input {...register('phone', { required: 'Required' })} placeholder="03XX-XXXXXXX" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none transition-colors" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', border: '1px solid', color: 'var(--text-primary)' }} />
+              {errors.phone && <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{errors.phone.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Email</label>
-              <input {...register('email')} type="email" placeholder="optional@email.com" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors" />
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Email</label>
+              <input {...register('email')} type="email" placeholder="optional@email.com" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none transition-colors" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', border: '1px solid', color: 'var(--text-primary)' }} />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Gender</label>
-              <select {...register('gender')} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50 transition-colors">
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Gender</label>
+              <select {...register('gender')} className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none transition-colors" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', border: '1px solid', color: 'var(--text-primary)' }}>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Status</label>
-              <select {...register('status')} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50 transition-colors">
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Status</label>
+              <select {...register('status')} className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none transition-colors" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', border: '1px solid', color: 'var(--text-primary)' }}>
                 <option value={true}>Active</option>
                 <option value={false}>Inactive</option>
               </select>
             </div>
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-400 mb-1">Address</label>
-              <input {...register('address')} placeholder="Street, City" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors" />
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Address</label>
+              <input {...register('address')} placeholder="Street, City" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none transition-colors" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', border: '1px solid', color: 'var(--text-primary)' }} />
             </div>
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-400 mb-1">Notes</label>
-              <textarea {...register('notes')} rows={2} placeholder="Additional notes…" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors resize-none" />
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Notes</label>
+              <textarea {...register('notes')} rows={2} placeholder="Additional notes…" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none transition-colors resize-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', border: '1px solid', color: 'var(--text-primary)' }} />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={closeModal} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors">Cancel</button>
-            <button id="customer-submit-btn" type="submit" disabled={isSubmitting} className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors disabled:opacity-60">
+            <button type="button" onClick={closeModal} className="px-4 py-2 rounded-xl text-sm transition-colors" style={{ color: 'var(--text-secondary)', backgroundColor: 'transparent' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>Cancel</button>
+            <button id="customer-submit-btn" type="submit" disabled={isSubmitting} className="px-5 py-2 rounded-xl text-white text-sm font-semibold transition-colors disabled:opacity-60" style={{ backgroundColor: 'var(--primary)' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
               {isSubmitting ? 'Saving…' : editing ? 'Update' : 'Create'}
             </button>
           </div>
@@ -171,10 +180,10 @@ export default function Customers() {
 
       {/* Delete Confirm */}
       <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title="Delete Customer" size="sm">
-        <p className="text-slate-300 text-sm mb-5">Are you sure you want to delete <span className="text-white font-semibold">{deleting?.name}</span>? This action cannot be undone.</p>
+        <p className="text-sm mb-5" style={{ color: 'var(--text-secondary)' }}>Are you sure you want to delete <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{deleting?.name}</span>? This action cannot be undone.</p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setDeleting(null)} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-          <button id="confirm-delete-customer-btn" onClick={() => handleDelete(deleting?._id)} className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold transition-colors">Delete</button>
+          <button onClick={() => setDeleting(null)} className="px-4 py-2 rounded-xl text-sm transition-colors" style={{ color: 'var(--text-secondary)', backgroundColor: 'transparent' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>Cancel</button>
+          <button id="confirm-delete-customer-btn" onClick={() => handleDelete(deleting?._id)} className="px-5 py-2 rounded-xl text-white text-sm font-semibold transition-colors" style={{ backgroundColor: 'var(--danger)' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>Delete</button>
         </div>
       </Modal>
     </div>

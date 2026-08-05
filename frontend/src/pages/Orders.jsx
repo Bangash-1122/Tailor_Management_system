@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { Plus, Search, Edit2, Trash2, FileText, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTheme } from '../context/ThemeContext';
 import PageHeader from '../components/common/PageHeader';
 import DataTable from '../components/common/DataTable';
 import Modal from '../components/common/Modal';
@@ -15,6 +16,8 @@ const STATUSES   = ['pending','cutting','stitching','trial','ready','delivered',
 const PRIORITIES = ['low','normal','high','urgent'];
 
 export default function Orders() {
+  const { currentThemeObj } = useTheme();
+  const isDark = currentThemeObj?.isDark;
   const [orders, setOrders]         = useState([]);
   const [customers, setCustomers]   = useState([]);
   const [loading, setLoading]       = useState(true);
@@ -94,11 +97,11 @@ export default function Orders() {
   };
 
   const columns = [
-    { key: 'orderNo', label: 'Order #', sortable: true, render: (v) => <span className="font-mono text-xs text-indigo-400">{v}</span> },
-    { key: 'customerId', label: 'Customer', render: (v) => <span className="font-medium text-slate-200">{v?.name ?? '—'}</span> },
-    { key: 'items', label: 'Items', render: (v) => <span className="text-slate-400">{v?.length ?? 0} item(s)</span> },
-    { key: 'totalAmount', label: 'Total', sortable: true, render: (v) => <span className="font-semibold text-emerald-400">{formatCurrency(v)}</span> },
-    { key: 'remainingAmount', label: 'Balance', render: (v) => <span className={v > 0 ? 'text-amber-400' : 'text-slate-500'}>{formatCurrency(v)}</span> },
+    { key: 'orderNo', label: 'Order #', sortable: true, render: (v) => <span className="font-mono text-xs" style={{ color: 'var(--primary)' }}>{v}</span> },
+    { key: 'customerId', label: 'Customer', render: (v) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{v?.name ?? '—'}</span> },
+    { key: 'items', label: 'Items', render: (v) => <span style={{ color: 'var(--text-secondary)' }}>{v?.length ?? 0} item(s)</span> },
+    { key: 'totalAmount', label: 'Total', sortable: true, render: (v) => <span className="font-semibold" style={{ color: 'var(--success)' }}>{formatCurrency(v)}</span> },
+    { key: 'remainingAmount', label: 'Balance', render: (v) => <span style={{ color: v > 0 ? 'var(--warning)' : 'var(--text-muted)' }}>{formatCurrency(v)}</span> },
     { key: 'deliveryDate', label: 'Delivery', sortable: true, render: (v) => formatDate(v) },
     { key: 'priority', label: 'Priority', render: (v) => <Badge label={v} className={PRIORITY_COLORS[v]} /> },
     { key: 'status', label: 'Status', render: (v, row) => (
@@ -110,9 +113,9 @@ export default function Orders() {
       key: '_id', label: 'Actions',
       render: (id, row) => (
         <div className="flex items-center gap-1">
-          <button id={`invoice-${id}`} onClick={() => handleInvoice(id)} className="p-1.5 rounded-lg text-slate-400 hover:text-violet-400 hover:bg-violet-500/10 transition-colors" title="Invoice"><FileText size={14} /></button>
-          <button id={`edit-order-${id}`} onClick={() => openEdit(row)} className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"><Edit2 size={14} /></button>
-          <button id={`delete-order-${id}`} onClick={() => setDeleting(row)} className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"><Trash2 size={14} /></button>
+          <button id={`invoice-${id}`} onClick={() => handleInvoice(id)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.backgroundColor = 'var(--primary-soft)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }} title="Invoice"><FileText size={14} /></button>
+          <button id={`edit-order-${id}`} onClick={() => openEdit(row)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.backgroundColor = 'var(--primary-soft)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }}><Edit2 size={14} /></button>
+          <button id={`delete-order-${id}`} onClick={() => setDeleting(row)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--danger)'; e.currentTarget.style.backgroundColor = 'rgba(244, 63, 94, 0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }}><Trash2 size={14} /></button>
         </div>
       ),
     },
@@ -124,7 +127,7 @@ export default function Orders() {
         title="Orders"
         subtitle={`${orders.length} orders found`}
         actions={
-          <button id="add-order-btn" onClick={openAdd} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors glow-indigo">
+          <button id="add-order-btn" onClick={openAdd} className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold transition-colors glow-indigo" style={{ backgroundColor: 'var(--primary)' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
             <Plus size={16} /> New Order
           </button>
         }
@@ -132,12 +135,12 @@ export default function Orders() {
 
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input id="orders-search" type="text" placeholder="Search orders…" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
+          <input id="orders-search" type="text" placeholder="Search orders…" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
         </div>
-        <select id="orders-status-filter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-300 focus:outline-none focus:border-indigo-500/50">
+        <select id="orders-status-filter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-4 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }}>
           <option value="">All Statuses</option>
-          {STATUSES.map((s) => <option key={s} value={s} className="capitalize bg-[#0f1629]">{s}</option>)}
+          {STATUSES.map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
         </select>
       </div>
 
@@ -148,31 +151,31 @@ export default function Orders() {
         <form id="order-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Customer *</label>
-              <select {...register('customerId', { required: 'Required' })} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50">
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Customer *</label>
+              <select {...register('customerId', { required: 'Required' })} className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }}>
                 <option value="">Select customer…</option>
                 {customers.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
-              {errors.customerId && <p className="text-xs text-rose-400 mt-1">{errors.customerId.message}</p>}
+              {errors.customerId && <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{errors.customerId.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Delivery Date *</label>
-              <input {...register('deliveryDate', { required: 'Required' })} type="date" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50" />
-              {errors.deliveryDate && <p className="text-xs text-rose-400 mt-1">{errors.deliveryDate.message}</p>}
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Delivery Date *</label>
+              <input {...register('deliveryDate', { required: 'Required' })} type="date" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
+              {errors.deliveryDate && <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{errors.deliveryDate.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Priority</label>
-              <select {...register('priority')} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50">
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Priority</label>
+              <select {...register('priority')} className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }}>
                 {PRIORITIES.map((p) => <option key={p} value={p} className="capitalize">{p}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Advance (Rs.)</label>
-              <input {...register('advanceAmount')} type="number" min="0" placeholder="0" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50" />
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Advance (Rs.)</label>
+              <input {...register('advanceAmount')} type="number" min="0" placeholder="0" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
             </div>
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-400 mb-1">Notes</label>
-              <textarea {...register('notes')} rows={2} placeholder="Order notes…" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 resize-none" />
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Notes</label>
+              <textarea {...register('notes')} rows={2} placeholder="Order notes…" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none resize-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
             </div>
           </div>
 

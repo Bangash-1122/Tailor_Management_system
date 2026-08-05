@@ -1,4 +1,5 @@
 import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 import LoadingSpinner from './LoadingSpinner';
 import EmptyState from './EmptyState';
 
@@ -7,27 +8,39 @@ export default function DataTable({
   sortKey, sortDir, onSort,
   emptyTitle, emptyDescription,
 }) {
+  const { currentThemeObj } = useTheme();
+  const isDark = currentThemeObj?.isDark;
+
   const SortIcon = ({ col }) => {
     if (!onSort || !col.sortable) return null;
-    if (sortKey !== col.key) return <ChevronsUpDown size={13} className="text-slate-600 ml-1 flex-shrink-0" />;
+    if (sortKey !== col.key) return <ChevronsUpDown size={13} className="ml-1 flex-shrink-0" style={{ color: 'rgba(75, 85, 99, 0.5)' }} />;
     return sortDir === 'asc'
-      ? <ChevronUp size={13} className="text-indigo-400 ml-1 flex-shrink-0" />
-      : <ChevronDown size={13} className="text-indigo-400 ml-1 flex-shrink-0" />;
+      ? <ChevronUp size={13} className="ml-1 flex-shrink-0" style={{ color: 'var(--primary)' }} />
+      : <ChevronDown size={13} className="ml-1 flex-shrink-0" style={{ color: 'var(--primary)' }} />;
   };
 
   return (
-    <div className="glass-card rounded-2xl border border-white/8 overflow-hidden">
+    <div className="glass-card rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--border-color)' }}>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/8 bg-white/2">
+            <tr className="border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--table-header-background)' }}>
               {columns.map((col, index) => (
                 <th
                   key={col.id || `${col.key}-${col.label || index}`}
-                  className={`px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap ${
-                    col.sortable && onSort ? 'cursor-pointer hover:text-slate-200 select-none' : ''
+                  className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap ${
+                    col.sortable && onSort ? 'cursor-pointer select-none' : ''
                   }`}
+                  style={{ color: 'var(--text-secondary)' }}
                   onClick={() => col.sortable && onSort?.(col.key)}
+                  onMouseEnter={(e) => {
+                    if (col.sortable && onSort) {
+                      e.currentTarget.style.color = 'var(--text-primary)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                  }}
                 >
                   <div className="flex items-center">
                     {col.label}
@@ -37,7 +50,7 @@ export default function DataTable({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y" style={{ borderColor: 'var(--divider-color)' }}>
             {loading ? (
               <tr>
                 <td colSpan={columns.length} className="py-12">
@@ -54,10 +67,13 @@ export default function DataTable({
               data.map((row, i) => (
                 <tr
                   key={row._id || i}
-                  className="hover:bg-white/3 transition-colors duration-150 group"
+                  className="transition-colors duration-150 group"
+                  style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   {columns.map((col, colIndex) => (
-                    <td key={col.id || `${col.key}-${col.label || colIndex}`} className="px-4 py-3 text-slate-300 whitespace-nowrap">
+                    <td key={col.id || `${col.key}-${col.label || colIndex}`} className="px-4 py-3 whitespace-nowrap">
                       {col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—')}
                     </td>
                   ))}

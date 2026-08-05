@@ -10,6 +10,8 @@ import {
 } from 'recharts';
 import StatCard from '../components/common/StatCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ChartTooltip from '../components/common/ChartTooltip';
+import { useTheme } from '../context/ThemeContext';
 import { getDashboard } from '../api/reports';
 import { formatCurrency, formatDate, ORDER_STATUS_COLORS } from '../utils/helpers';
 import Badge from '../components/common/Badge';
@@ -25,21 +27,9 @@ const STATUS_COLORS_CHART = {
   cancelled: '#f43f5e',
 };
 
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="glass-card border border-white/10 rounded-xl px-4 py-3 text-xs">
-      <p className="text-slate-400 mb-1">{label}</p>
-      {payload.map((p) => (
-        <p key={p.name} className="font-semibold" style={{ color: p.color }}>
-          {p.name}: {formatCurrency(p.value)}
-        </p>
-      ))}
-    </div>
-  );
-};
-
 export default function Dashboard() {
+  const { currentThemeObj } = useTheme();
+  const isDark = currentThemeObj?.isDark;
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -91,15 +81,15 @@ export default function Dashboard() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         {/* Area Chart — Income vs Expenses */}
-        <div className="xl:col-span-2 glass-card rounded-2xl border border-white/8 p-5 animate-fade-in-up stagger-2">
+        <div className="xl:col-span-2 glass-card rounded-2xl border p-5 animate-fade-in-up stagger-2" style={{ borderColor: 'var(--border-color)' }}>
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-sm font-semibold text-white">Income vs Expenses</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Monthly overview</p>
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Income vs Expenses</h3>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Monthly overview</p>
             </div>
-            <div className="flex items-center gap-4 text-xs text-slate-400">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-indigo-500 inline-block" />Income</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />Expenses</span>
+            <div className="flex items-center gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: '#6366f1' }} />Income</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: '#f43f5e' }} />Expenses</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
@@ -114,10 +104,10 @@ export default function Dashboard() {
                   <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e2d52" />
-              <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
-              <Tooltip content={<CustomTooltip />} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" opacity={isDark ? 0.3 : 0.2} />
+              <XAxis dataKey="month" tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
+              <Tooltip content={<ChartTooltip />} />
               <Area type="monotone" dataKey="income"   stroke="#6366f1" strokeWidth={2} fill="url(#incomeGrad)"  name="Income" />
               <Area type="monotone" dataKey="expenses" stroke="#f43f5e" strokeWidth={2} fill="url(#expenseGrad)" name="Expenses" />
             </AreaChart>
@@ -125,9 +115,9 @@ export default function Dashboard() {
         </div>
 
         {/* Pie Chart — Order Status */}
-        <div className="glass-card rounded-2xl border border-white/8 p-5 animate-fade-in-up stagger-3">
-          <h3 className="text-sm font-semibold text-white mb-1">Order Status</h3>
-          <p className="text-xs text-slate-400 mb-4">Current distribution</p>
+        <div className="glass-card rounded-2xl border p-5 animate-fade-in-up stagger-3" style={{ borderColor: 'var(--border-color)' }}>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Order Status</h3>
+          <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Current distribution</p>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={orderStatusDist} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
@@ -135,12 +125,8 @@ export default function Dashboard() {
                   <Cell key={i} fill={pieColors[i % pieColors.length]} />
                 ))}
               </Pie>
-              <Tooltip
-                formatter={(v) => [v, 'Orders']}
-                contentStyle={{ background: '#0f1629', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12, color: '#e2e8f0' }}
-                itemStyle={{ color: '#e2e8f0' }}
-              />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, color: '#94a3b8' }} />
+              <Tooltip content={<ChartTooltip />} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, color: 'var(--chart-axis)' }} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -159,41 +145,41 @@ export default function Dashboard() {
               <Icon size={18} className={color} />
             </div>
             <div>
-              <p className="text-xl font-bold text-white">{count}</p>
-              <p className="text-xs text-slate-400">{label}</p>
+              <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{count}</p>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Recent Orders Table */}
-      <div className="glass-card rounded-2xl border border-white/8 animate-fade-in-up stagger-3">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
-          <h3 className="text-sm font-semibold text-white">Recent Orders</h3>
-          <Link to="/orders" className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
+      <div className="glass-card rounded-2xl border animate-fade-in-up stagger-3" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Recent Orders</h3>
+          <Link to="/orders" className="text-xs flex items-center gap-1 transition-colors hover:opacity-80" style={{ color: 'var(--primary)' }}>
             View all <ArrowRight size={12} />
           </Link>
         </div>
         {recentOrders.length === 0 ? (
-          <div className="py-10 text-center text-slate-500 text-sm">No recent orders</div>
+          <div className="py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>No recent orders</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/5">
+                <tr style={{ borderBottom: `1px solid var(--divider-color)` }}>
                   {['Order #', 'Customer', 'Items', 'Amount', 'Delivery', 'Status'].map((h) => (
-                    <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">{h}</th>
+                    <th key={h} className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)', backgroundColor: 'var(--table-header-background)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y" style={{ borderColor: 'var(--divider-color)' }}>
                 {recentOrders.slice(0, 6).map((o) => (
-                  <tr key={o._id} className="hover:bg-white/3 transition-colors">
-                    <td className="px-5 py-3 text-indigo-400 font-mono text-xs">{o.orderNo}</td>
-                    <td className="px-5 py-3 text-slate-200">{o.customerId?.name ?? '—'}</td>
-                    <td className="px-5 py-3 text-slate-400">{o.items?.length ?? 0}</td>
-                    <td className="px-5 py-3 text-emerald-400 font-semibold">{formatCurrency(o.totalAmount)}</td>
-                    <td className="px-5 py-3 text-slate-400">{formatDate(o.deliveryDate)}</td>
+                  <tr key={o._id} className="transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                    <td className="px-5 py-3 font-mono text-xs" style={{ color: 'var(--primary)' }}>{o.orderNo}</td>
+                    <td className="px-5 py-3">{o.customerId?.name ?? '—'}</td>
+                    <td className="px-5 py-3">{o.items?.length ?? 0}</td>
+                    <td className="px-5 py-3 font-semibold" style={{ color: 'var(--success)' }}>{formatCurrency(o.totalAmount)}</td>
+                    <td className="px-5 py-3">{formatDate(o.deliveryDate)}</td>
                     <td className="px-5 py-3">
                       <Badge label={o.status} className={ORDER_STATUS_COLORS[o.status]} />
                     </td>
