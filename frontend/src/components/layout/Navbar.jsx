@@ -623,60 +623,77 @@ export default function Navbar() {
               className="flex items-center gap-3 border-b px-4 py-3"
               style={{ borderColor: 'var(--border-color)' }}
             >
-              {selectedCustomer ? (
-                <button
-                  type="button"
-                  onClick={goBackToSearchResults}
-                  className="text-xs font-medium transition-colors"
-                  style={{ color: 'var(--primary)' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = '0.8';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = '1';
-                  }}
-                >
-                  Back
-                </button>
-              ) : (
-                <Search size={18} style={{ color: 'var(--text-muted)' }} />
-              )}
+              <div
+                className="relative flex h-9 flex-1 items-center rounded-xl border transition-colors"
+                style={{
+                  backgroundColor: 'var(--surface)',
+                  borderColor: 'var(--border-color)',
+                }}
+              >
+                <Search
+                  size={15}
+                  className="pointer-events-none absolute left-3"
+                  style={{ color: 'var(--text-muted)' }}
+                />
 
-              {!selectedCustomer && (
                 <input
                   ref={searchInputRef}
                   type="text"
                   value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onChange={(event) => {
+                    setSearchQuery(event.target.value);
+
+                    if (selectedCustomer) {
+                      goBackToSearchResults();
+                    }
+                  }}
                   placeholder="Search customer by name, code, phone or email..."
-                  className="flex-1 bg-transparent text-sm outline-none"
+                  className="h-full w-full rounded-xl bg-transparent py-2 pl-9 pr-9 text-sm outline-none"
                   style={{
                     color: 'var(--text-primary)',
                   }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--primary)';
+                  onFocus={(event) => {
+                    event.currentTarget.parentElement.style.borderColor =
+                      'var(--primary)';
+                  }}
+                  onBlur={(event) => {
+                    event.currentTarget.parentElement.style.borderColor =
+                      'var(--border-color)';
                   }}
                 />
-              )}
 
-              {selectedCustomer && (
-                <p className="flex-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  Customer Details
-                </p>
-              )}
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      goBackToSearchResults();
+                      searchInputRef.current?.focus();
+                    }}
+                    className="absolute right-2 rounded-md p-1 transition-colors"
+                    style={{ color: 'var(--text-muted)' }}
+                    aria-label="Clear customer search"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
 
               <button
                 type="button"
                 onClick={() => setSearchOpen(false)}
                 className="rounded-lg p-1.5 transition-colors"
                 style={{ color: 'var(--text-muted)' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--surface-hover)';
-                  e.currentTarget.style.color = 'var(--text-primary)';
+                onMouseEnter={(event) => {
+                  event.currentTarget.style.backgroundColor =
+                    'var(--surface-hover)';
+                  event.currentTarget.style.color =
+                    'var(--text-primary)';
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = 'var(--text-muted)';
+                onMouseLeave={(event) => {
+                  event.currentTarget.style.backgroundColor = 'transparent';
+                  event.currentTarget.style.color =
+                    'var(--text-muted)';
                 }}
                 aria-label="Close customer search"
               >
@@ -764,8 +781,8 @@ export default function Navbar() {
                         Rs.{' '}
                         {Number(
                           selectedCustomer.balance ??
-                            selectedCustomer.ledgerBalance ??
-                            0
+                          selectedCustomer.ledgerBalance ??
+                          0
                         ).toLocaleString()}
                       </p>
                     </div>

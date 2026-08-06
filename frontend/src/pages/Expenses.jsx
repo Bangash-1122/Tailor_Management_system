@@ -100,36 +100,140 @@ export default function Expenses() {
         }
       />
 
-      {/* Bar chart */}
-      {chartData.length > 0 && (
-        <div className="glass-card rounded-2xl border border-white/8 p-5">
-          <p className="text-sm font-semibold text-white mb-4">Expenses by Category</p>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e2d52" />
-              <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
-              <Tooltip
-                content={({ active, payload, label }) => {
-                  if (!active || !payload?.length) return null;
-                  return (
-                    <div className="bg-[#0f172a]/95 backdrop-blur-md border border-white/15 rounded-xl px-4 py-3 text-xs shadow-xl">
-                      <p className="text-slate-400 mb-1 font-medium">{label}</p>
-                      {payload.map((p, idx) => (
-                        <p key={idx} className="font-semibold flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: p.color || '#6366f1' }} />
-                          <span className="text-white font-bold">{formatCurrency(p.value)}</span>
-                        </p>
-                      ))}
-                    </div>
-                  );
+{/* Bar chart */}
+{chartData.length > 0 && (
+  <div
+    className="
+      glass-card
+      rounded-2xl
+      border
+      border-slate-200
+      p-5
+      dark:border-white/8
+    "
+  >
+    <p
+      className="
+        mb-4
+        text-sm
+        font-semibold
+        text-slate-900
+        dark:text-white
+      "
+    >
+      Expenses by Category
+    </p>
+
+    <ResponsiveContainer width="100%" height={180}>
+      <BarChart
+        data={chartData}
+        margin={{
+          top: 4,
+          right: 4,
+          left: -20,
+          bottom: 0,
+        }}
+      >
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="var(--chart-grid)"
+        />
+
+        <XAxis
+          dataKey="name"
+          tick={{
+            fill: 'var(--chart-axis)',
+            fontSize: 11,
+          }}
+          axisLine={false}
+          tickLine={false}
+        />
+
+        <YAxis
+          tick={{
+            fill: 'var(--chart-axis)',
+            fontSize: 11,
+          }}
+          axisLine={false}
+          tickLine={false}
+          tickFormatter={(value) =>
+            `${(value / 1000).toFixed(0)}k`
+          }
+        />
+
+        <Tooltip
+          cursor={{
+            fill: 'var(--primary-soft)',
+          }}
+          content={({ active, payload, label }) => {
+            if (!active || !payload?.length) return null;
+
+            return (
+              <div
+                className="
+                  min-w-[130px]
+                  rounded-xl
+                  border
+                  px-4
+                  py-3
+                  text-xs
+                  shadow-xl
+                  backdrop-blur-md
+                "
+                style={{
+                  backgroundColor: 'var(--chart-tooltip-background)',
+                  borderColor: 'var(--chart-tooltip-border)',
+                  boxShadow: 'var(--chart-tooltip-shadow)',
                 }}
-              />
-              <Bar dataKey="amount" fill="#6366f1" radius={[6,6,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+              >
+                <p
+                  className="mb-1 font-semibold"
+                  style={{ color: 'var(--chart-tooltip-title)' }}
+                >
+                  {label}
+                </p>
+
+                {payload.map((p, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2"
+                  >
+                    <span
+                      className="
+                        inline-block
+                        h-2.5
+                        w-2.5
+                        shrink-0
+                        rounded-full
+                      "
+                      style={{ backgroundColor: 'var(--primary)' }}
+                    />
+
+                    <span
+                      className="font-bold"
+                      style={{ color: 'var(--chart-tooltip-text)' }}
+                    >
+                      {formatCurrency(p.value)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            );
+          }}
+        />
+
+        <Bar
+          dataKey="amount"
+          fill="#6366f1"
+          radius={[6, 6, 0, 0]}
+          activeBar={{
+            fill: '#4f46e5',
+          }}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+)}
 
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">
