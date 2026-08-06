@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Plus, Search, Edit2, Trash2, FileText, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
@@ -16,6 +17,7 @@ const STATUSES   = ['pending','cutting','stitching','trial','ready','delivered',
 const PRIORITIES = ['low','normal','high','urgent'];
 
 export default function Orders() {
+  const { t } = useTranslation();
   const { currentThemeObj } = useTheme();
   const isDark = currentThemeObj?.isDark;
   const [orders, setOrders]         = useState([]);
@@ -73,19 +75,19 @@ export default function Orders() {
     const payload = { ...data, items, totalAmount, remainingAmount: totalAmount - Number(data.advanceAmount || 0) };
     try {
       editing ? await updateOrder(editing._id, payload) : await createOrder(payload);
-      toast.success(editing ? 'Order updated' : 'Order created');
+      toast.success(editing ? t('orders.orderUpdated') : t('orders.orderCreated'));
       closeModal(); fetchAll();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || t('orders.updateFailed')); }
   };
 
   const handleStatusUpdate = async (id, status) => {
-    try { await updateOrderStatus(id, status); toast.success('Status updated'); setStatusModal(null); fetchAll(); }
-    catch { toast.error('Update failed'); }
+    try { await updateOrderStatus(id, status); toast.success(t('orders.statusUpdated')); setStatusModal(null); fetchAll(); }
+    catch { toast.error(t('orders.updateFailed')); }
   };
 
   const handleDelete = async (id) => {
-    try { await deleteOrder(id); toast.success('Order deleted'); setDeleting(null); fetchAll(); }
-    catch { toast.error('Delete failed'); }
+    try { await deleteOrder(id); toast.success(t('orders.orderDeleted')); setDeleting(null); fetchAll(); }
+    catch { toast.error(t('orders.deleteFailed')); }
   };
 
   const handleInvoice = async (orderId) => {
@@ -93,24 +95,24 @@ export default function Orders() {
       const res = await getInvoice(orderId);
       const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
       window.open(url, '_blank');
-    } catch { toast.error('Invoice generation failed'); }
+    } catch { toast.error(t('orders.invoiceFailed')); }
   };
 
   const columns = [
-    { key: 'orderNo', label: 'Order #', sortable: true, render: (v) => <span className="font-mono text-xs" style={{ color: 'var(--primary)' }}>{v}</span> },
-    { key: 'customerId', label: 'Customer', render: (v) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{v?.name ?? '—'}</span> },
-    { key: 'items', label: 'Items', render: (v) => <span style={{ color: 'var(--text-secondary)' }}>{v?.length ?? 0} item(s)</span> },
-    { key: 'totalAmount', label: 'Total', sortable: true, render: (v) => <span className="font-semibold" style={{ color: 'var(--success)' }}>{formatCurrency(v)}</span> },
-    { key: 'remainingAmount', label: 'Balance', render: (v) => <span style={{ color: v > 0 ? 'var(--warning)' : 'var(--text-muted)' }}>{formatCurrency(v)}</span> },
-    { key: 'deliveryDate', label: 'Delivery', sortable: true, render: (v) => formatDate(v) },
-    { key: 'priority', label: 'Priority', render: (v) => <Badge label={v} className={PRIORITY_COLORS[v]} /> },
-    { key: 'status', label: 'Status', render: (v, row) => (
+    { key: 'orderNo', label: t('orders.orderNumber'), sortable: true, render: (v) => <span className="font-mono text-xs" style={{ color: 'var(--primary)' }}>{v}</span> },
+    { key: 'customerId', label: t('orders.customer'), render: (v) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{v?.name ?? '—'}</span> },
+    { key: 'items', label: t('orders.items'), render: (v) => <span style={{ color: 'var(--text-secondary)' }}>{v?.length ?? 0} item(s)</span> },
+    { key: 'totalAmount', label: t('orders.total'), sortable: true, render: (v) => <span className="font-semibold" style={{ color: 'var(--success)' }}>{formatCurrency(v)}</span> },
+    { key: 'remainingAmount', label: t('orders.balance'), render: (v) => <span style={{ color: v > 0 ? 'var(--warning)' : 'var(--text-muted)' }}>{formatCurrency(v)}</span> },
+    { key: 'deliveryDate', label: t('orders.delivery'), sortable: true, render: (v) => formatDate(v) },
+    { key: 'priority', label: t('orders.priority'), render: (v) => <Badge label={v} className={PRIORITY_COLORS[v]} /> },
+    { key: 'status', label: t('common.status'), render: (v, row) => (
       <button onClick={() => setStatusModal(row)} className="focus:outline-none" id={`status-btn-${row._id}`}>
         <Badge label={v} className={`${ORDER_STATUS_COLORS[v]} cursor-pointer hover:opacity-80 transition-opacity`} />
       </button>
     )},
     {
-      key: '_id', label: 'Actions',
+      key: '_id', label: t('common.actions'),
       render: (id, row) => (
         <div className="flex items-center gap-1">
           <button id={`invoice-${id}`} onClick={() => handleInvoice(id)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.backgroundColor = 'var(--primary-soft)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }} title="Invoice"><FileText size={14} /></button>
@@ -124,11 +126,11 @@ export default function Orders() {
   return (
     <div className="space-y-5 animate-fade-in">
       <PageHeader
-        title="Orders"
-        subtitle={`${orders.length} orders found`}
+        title={t('orders.title')}
+        subtitle={`${orders.length} ${t('orders.ordersFound')}`}
         actions={
           <button id="add-order-btn" onClick={openAdd} className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold transition-colors glow-indigo" style={{ backgroundColor: 'var(--primary)' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
-            <Plus size={16} /> New Order
+            <Plus size={16} /> {t('orders.newOrder')}
           </button>
         }
       />
@@ -136,68 +138,68 @@ export default function Orders() {
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
-          <input id="orders-search" type="text" placeholder="Search orders…" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
+          <input id="orders-search" type="text" placeholder={t('orders.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
         </div>
         <select id="orders-status-filter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-4 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }}>
-          <option value="">All Statuses</option>
+          <option value="">{t('orders.allStatuses')}</option>
           {STATUSES.map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
         </select>
       </div>
 
-      <DataTable columns={columns} data={orders} loading={loading} emptyTitle="No orders yet" emptyDescription="Create your first order." />
+      <DataTable columns={columns} data={orders} loading={loading} emptyTitle={t('orders.noOrdersYet')} emptyDescription={t('orders.noOrdersDescription')} />
 
       {/* Add/Edit Modal */}
-      <Modal isOpen={showModal} onClose={closeModal} title={editing ? 'Edit Order' : 'New Order'} size="xl">
+      <Modal isOpen={showModal} onClose={closeModal} title={editing ? t('orders.editOrder') : t('orders.newOrder')} size="xl">
         <form id="order-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Customer *</label>
-              <select {...register('customerId', { required: 'Required' })} className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }}>
-                <option value="">Select customer…</option>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('orders.customer')} *</label>
+              <select {...register('customerId', { required: t('validation.required') })} className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }}>
+                <option value="">{t('orders.selectCustomer')}</option>
                 {customers.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
               {errors.customerId && <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{errors.customerId.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Delivery Date *</label>
-              <input {...register('deliveryDate', { required: 'Required' })} type="date" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('orders.deliveryDate')} *</label>
+              <input {...register('deliveryDate', { required: t('validation.required') })} type="date" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
               {errors.deliveryDate && <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{errors.deliveryDate.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Priority</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('orders.priority')}</label>
               <select {...register('priority')} className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }}>
                 {PRIORITIES.map((p) => <option key={p} value={p} className="capitalize">{p}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Advance (Rs.)</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('orders.advanceAmount')}</label>
               <input {...register('advanceAmount')} type="number" min="0" placeholder="0" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
             </div>
             <div className="col-span-2">
-              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Notes</label>
-              <textarea {...register('notes')} rows={2} placeholder="Order notes…" className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none resize-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
+              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('common.notes')}</label>
+              <textarea {...register('notes')} rows={2} placeholder={t('orders.orderNotes')} className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none resize-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }} />
             </div>
           </div>
 
           {/* Items */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-slate-400">Order Items *</p>
-              <button type="button" onClick={() => append({ itemName: '', quantity: 1, unitPrice: 0, totalPrice: 0 })} className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"><Plus size={12} />Add Item</button>
+              <p className="text-xs font-semibold text-slate-400">{t('orders.orderItems')} *</p>
+              <button type="button" onClick={() => append({ itemName: '', quantity: 1, unitPrice: 0, totalPrice: 0 })} className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"><Plus size={12} />{t('orders.addItem')}</button>
             </div>
             <div className="space-y-2">
               {fields.map((field, i) => (
                 <div key={field.id} className="grid grid-cols-12 gap-2 items-end">
                   <div className="col-span-5">
-                    {i === 0 && <p className="text-xs text-slate-500 mb-1">Item Name</p>}
-                    <input {...register(`items.${i}.itemName`, { required: true })} placeholder="e.g. Kurta" className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50" />
+                    {i === 0 && <p className="text-xs text-slate-500 mb-1">{t('orders.itemName')}</p>}
+                    <input {...register(`items.${i}.itemName`, { required: true })} placeholder={t('orders.itemNamePlaceholder')} className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50" />
                   </div>
                   <div className="col-span-2">
-                    {i === 0 && <p className="text-xs text-slate-500 mb-1">Qty</p>}
+                    {i === 0 && <p className="text-xs text-slate-500 mb-1">{t('orders.qty')}</p>}
                     <input {...register(`items.${i}.quantity`, { min: 1 })} type="number" min="1" className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50" />
                   </div>
                   <div className="col-span-3">
-                    {i === 0 && <p className="text-xs text-slate-500 mb-1">Unit Price</p>}
+                    {i === 0 && <p className="text-xs text-slate-500 mb-1">{t('orders.unitPrice')}</p>}
                     <input {...register(`items.${i}.unitPrice`, { min: 0 })} type="number" min="0" placeholder="0" className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50" />
                   </div>
                   <div className="col-span-2 flex justify-end">
@@ -211,16 +213,16 @@ export default function Orders() {
           </div>
 
           <div className="flex justify-end gap-3 pt-2 border-t border-white/8">
-            <button type="button" onClick={closeModal} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
+            <button type="button" onClick={closeModal} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 transition-colors">{t('common.cancel')}</button>
             <button id="order-submit-btn" type="submit" disabled={isSubmitting} className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors disabled:opacity-60">
-              {isSubmitting ? 'Saving…' : editing ? 'Update Order' : 'Create Order'}
+              {isSubmitting ? t('common.loading') : editing ? t('orders.updateOrder') : t('orders.createOrder')}
             </button>
           </div>
         </form>
       </Modal>
 
       {/* Status Update Modal */}
-      <Modal isOpen={!!statusModal} onClose={() => setStatusModal(null)} title="Update Order Status" size="sm">
+      <Modal isOpen={!!statusModal} onClose={() => setStatusModal(null)} title={t('orders.updateOrderStatus')} size="sm">
         <p className="text-xs text-slate-400 mb-4">Order: <span className="text-indigo-400 font-mono">{statusModal?.orderNo}</span></p>
         <div className="grid grid-cols-2 gap-2">
           {STATUSES.map((s) => (
@@ -239,11 +241,11 @@ export default function Orders() {
       </Modal>
 
       {/* Delete Confirm */}
-      <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title="Delete Order" size="sm">
-        <p className="text-slate-300 text-sm mb-5">Delete order <span className="text-indigo-400 font-mono">{deleting?.orderNo}</span>?</p>
+      <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title={t('orders.deleteOrder')} size="sm">
+        <p className="text-slate-300 text-sm mb-5">{t('orders.deleteConfirmation', { orderNo: deleting?.orderNo })}</p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setDeleting(null)} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5">Cancel</button>
-          <button id="confirm-delete-order-btn" onClick={() => handleDelete(deleting?._id)} className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold">Delete</button>
+          <button onClick={() => setDeleting(null)} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5">{t('common.cancel')}</button>
+          <button id="confirm-delete-order-btn" onClick={() => handleDelete(deleting?._id)} className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold">{t('common.delete')}</button>
         </div>
       </Modal>
     </div>

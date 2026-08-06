@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, BookOpen, TrendingUp, TrendingDown } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import DataTable from '../components/common/DataTable';
@@ -9,6 +10,7 @@ import { getLedger } from '../api/ledger';
 import { formatCurrency, formatDate } from '../utils/helpers';
 
 export default function Ledger() {
+  const { t } = useTranslation();
   const [customers, setCustomers]       = useState([]);
   const [selected, setSelected]         = useState('');
   const [entries, setEntries]           = useState([]);
@@ -52,33 +54,33 @@ export default function Ledger() {
   const balance     = selectedCustomer?.ledgerBalance ?? (totalCredit - totalDebit);
 
   const columns = [
-    { key: 'date', label: 'Date', sortable: true, render: (v) => formatDate(v) },
-    { key: 'type', label: 'Type', render: (v) => (
-      <Badge label={v === 'debit' ? '↑ Debit' : '↓ Credit'} className={v === 'debit' ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'} />
+    { key: 'date', label: t('common.date'), sortable: true, render: (v) => formatDate(v) },
+    { key: 'type', label: t('ledger.type'), render: (v) => (
+      <Badge label={v === 'debit' ? t('ledger.debit') : t('ledger.credit')} className={v === 'debit' ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'} />
     )},
-    { key: 'amount', label: 'Amount', render: (v, row) => (
+    { key: 'amount', label: t('common.amount'), render: (v, row) => (
       <span className={`font-semibold ${row.type === 'debit' ? 'text-rose-400' : 'text-emerald-400'}`}>
         {row.type === 'debit' ? '+' : '–'} {formatCurrency(v)}
       </span>
     )},
-    { key: 'balance', label: 'Running Balance', render: (v) => <span className={`font-semibold ${v >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{formatCurrency(Math.abs(v))}</span> },
-    { key: 'description', label: 'Description', render: (v) => <span className="text-slate-400 text-sm">{v || '—'}</span> },
+    { key: 'balance', label: t('ledger.runningBalance'), render: (v) => <span className={`font-semibold ${v >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{formatCurrency(Math.abs(v))}</span> },
+    { key: 'description', label: t('ledger.description'), render: (v) => <span className="text-slate-400 text-sm">{v || '—'}</span> },
   ];
 
   return (
     <div className="space-y-5 animate-fade-in">
-      <PageHeader title="Customer Ledger" subtitle="Debit & credit ledger per customer" />
+      <PageHeader title={t('ledger.title')} subtitle={t('ledger.subtitle')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Customer List */}
         <div className="glass-card rounded-2xl border border-white/8 p-4 lg:col-span-1 h-fit lg:sticky lg:top-4">
-          <p className="text-xs font-semibold text-slate-400 mb-3">Select Customer</p>
+          <p className="text-xs font-semibold text-slate-400 mb-3">{t('ledger.selectCustomer')}</p>
           <div className="relative mb-3">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               id="ledger-customer-search"
               type="text"
-              placeholder="Search…"
+              placeholder={t('common.search')}
               value={customerSearch}
               onChange={(e) => setCustomerSearch(e.target.value)}
               className="w-full pl-8 pr-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50"
@@ -99,7 +101,7 @@ export default function Ledger() {
                 >
                   <p className="font-medium truncate">{c.name}</p>
                   <p className={`text-xs mt-0.5 ${c.ledgerBalance < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                    {formatCurrency(Math.abs(c.ledgerBalance || 0))} {c.ledgerBalance < 0 ? 'owed' : 'credit'}
+                    {formatCurrency(Math.abs(c.ledgerBalance || 0))} {c.ledgerBalance < 0 ? t('ledger.owed') : t('ledger.credit')}
                   </p>
                 </button>
               ))}
@@ -112,15 +114,15 @@ export default function Ledger() {
           {selected && selectedCustomer && (
             <div className="grid grid-cols-3 gap-3">
               <div className="glass-card rounded-xl border border-white/8 p-4">
-                <p className="text-xs text-slate-400">Total Debit</p>
+                <p className="text-xs text-slate-400">{t('ledger.totalDebit')}</p>
                 <p className="text-lg font-bold text-rose-400 mt-1">{formatCurrency(totalDebit)}</p>
               </div>
               <div className="glass-card rounded-xl border border-white/8 p-4">
-                <p className="text-xs text-slate-400">Total Credit</p>
+                <p className="text-xs text-slate-400">{t('ledger.totalCredit')}</p>
                 <p className="text-lg font-bold text-emerald-400 mt-1">{formatCurrency(totalCredit)}</p>
               </div>
               <div className={`glass-card rounded-xl border p-4 ${balance >= 0 ? 'border-emerald-500/20' : 'border-rose-500/20'}`}>
-                <p className="text-xs text-slate-400">Net Balance</p>
+                <p className="text-xs text-slate-400">{t('ledger.netBalance')}</p>
                 <p className={`text-lg font-bold mt-1 ${balance >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{formatCurrency(Math.abs(balance))}</p>
               </div>
             </div>
@@ -129,15 +131,15 @@ export default function Ledger() {
           {!selected ? (
             <div className="glass-card rounded-2xl border border-white/8 py-20 text-center">
               <BookOpen size={32} className="text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-400 text-sm">Select a customer to view their ledger</p>
+              <p className="text-slate-400 text-sm">{t('ledger.selectCustomerToView')}</p>
             </div>
           ) : (
             <DataTable
               columns={columns}
               data={entries}
               loading={loadingE}
-              emptyTitle="No ledger entries"
-              emptyDescription="No transactions found for this customer."
+              emptyTitle={t('ledger.noEntries')}
+              emptyDescription={t('ledger.noTransactions')}
             />
           )}
         </div>

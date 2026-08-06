@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
 export default function Modal({ isOpen, onClose, title, children, size = 'md' }) {
+  const { t } = useTranslation();
   const { currentThemeObj } = useTheme();
   const isDark = currentThemeObj?.isDark;
   const overlayRef = useRef(null);
@@ -40,7 +42,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' })
             style={{ color: 'var(--text-secondary)' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.backgroundColor = 'var(--surface-hover)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }}
-            aria-label="Close modal"
+            aria-label={t('common.closeModal')}
           >
             <X size={16} />
           </button>

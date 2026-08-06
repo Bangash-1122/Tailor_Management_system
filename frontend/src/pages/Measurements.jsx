@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
     Plus,
     Search,
@@ -396,6 +397,7 @@ const MeasurementIcon = ({ field, size = 26, className = '' }) => {
 };
 
 export default function Measurements() {
+    const { t } = useTranslation();
     const [measurements, setMeasurements] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -548,12 +550,12 @@ export default function Measurements() {
                 await createMeasurement(payload);
             }
 
-            toast.success(editing ? 'Measurement updated' : 'Measurement saved');
+            toast.success(editing ? t('measurements.measurementUpdated') : t('measurements.measurementSaved'));
             closeModal();
             fetchAll();
         } catch (err) {
             toast.error(
-                err.response?.data?.message || 'Failed to save measurement'
+                err.response?.data?.message || t('measurements.saveFailed')
             );
         }
     };
@@ -561,11 +563,11 @@ export default function Measurements() {
     const handleDelete = async (id) => {
         try {
             await deleteMeasurement(id);
-            toast.success('Deleted');
+            toast.success(t('measurements.deleted'));
             setDeleting(null);
             fetchAll();
         } catch {
-            toast.error('Delete failed');
+            toast.error(t('measurements.deleteFailed'));
         }
     };
 
@@ -573,7 +575,7 @@ export default function Measurements() {
         {
             id: 'col-customer',
             key: 'customerId',
-            label: 'Customer',
+            label: t('common.customer'),
             render: (value) => (
                 <span className="font-medium text-slate-200">
                     {value?.name ?? '—'}
@@ -583,7 +585,7 @@ export default function Measurements() {
         {
             id: 'col-type',
             key: 'type',
-            label: 'Type',
+            label: t('measurements.type'),
             render: (value) => (
                 <Badge
                     label={value}
@@ -594,32 +596,32 @@ export default function Measurements() {
         {
             id: 'col-chest',
             key: 'measurements',
-            label: 'Chest',
+            label: t('measurements.chest'),
             render: (value) => (value?.chest ? `${value.chest}"` : '—'),
         },
         {
             id: 'col-waist',
             key: 'measurements',
-            label: 'Waist',
+            label: t('measurements.waist'),
             render: (value) => (value?.waist ? `${value.waist}"` : '—'),
         },
         {
             id: 'col-shoulder',
             key: 'measurements',
-            label: 'Shoulder',
+            label: t('measurements.shoulder'),
             render: (value) =>
                 value?.shoulder ? `${value.shoulder}"` : '—',
         },
         {
             id: 'col-length',
             key: 'measurements',
-            label: 'Length',
+            label: t('measurements.length'),
             render: (value) => (value?.length ? `${value.length}"` : '—'),
         },
         {
             id: 'col-version',
             key: 'version',
-            label: 'Version',
+            label: t('measurements.version'),
             render: (value) => (
                 <span className="text-slate-500">v{value ?? 1}</span>
             ),
@@ -627,12 +629,12 @@ export default function Measurements() {
         {
             id: 'col-date',
             key: 'createdAt',
-            label: 'Date',
+            label: t('measurements.date'),
             render: (value) => formatDate(value),
         },
         {
             key: '_id',
-            label: 'Actions',
+            label: t('common.actions'),
             render: (_, row) => (
                 <div className="flex items-center gap-2">
                     <button
@@ -640,8 +642,8 @@ export default function Measurements() {
                         type="button"
                         onClick={() => openMeasurementSheet(row)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-sky-400 hover:bg-sky-500/10 transition-colors"
-                        aria-label="View and print measurement sheet"
-                        title="View measurement sheet"
+                        aria-label={t('measurements.viewMeasurementSheet')}
+                        title={t('measurements.viewMeasurementSheet')}
                     >
                         <FileText size={14} />
                     </button>
@@ -651,8 +653,8 @@ export default function Measurements() {
                         type="button"
                         onClick={() => openEdit(row)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"
-                        aria-label="Edit measurement"
-                        title="Edit measurement"
+                        aria-label={t('common.edit')}
+                        title={t('common.edit')}
                     >
                         <Edit2 size={14} />
                     </button>
@@ -662,8 +664,8 @@ export default function Measurements() {
                         type="button"
                         onClick={() => setDeleting(row)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-                        aria-label="Delete measurement"
-                        title="Delete measurement"
+                        aria-label={t('common.delete')}
+                        title={t('common.delete')}
                     >
                         <Trash2 size={14} />
                     </button>
@@ -717,8 +719,8 @@ export default function Measurements() {
             `}</style>
 
             <PageHeader
-                title="Measurements"
-                subtitle="Customer clothing measurements"
+                title={t('measurements.title')}
+                subtitle={t('measurements.subtitle')}
                 actions={
                     <button
                         id="add-measurement-btn"
@@ -727,7 +729,7 @@ export default function Measurements() {
                         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors glow-indigo"
                     >
                         <Plus size={16} />
-                        Add Measurement
+                        {t('measurements.addMeasurement')}
                     </button>
                 }
             />
@@ -740,7 +742,7 @@ export default function Measurements() {
                 <input
                     id="measurements-search"
                     type="text"
-                    placeholder="Search measurements…"
+                    placeholder={t('measurements.searchPlaceholder')}
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-colors"
@@ -751,14 +753,14 @@ export default function Measurements() {
                 columns={columns}
                 data={measurements}
                 loading={loading}
-                emptyTitle="No measurements yet"
-                emptyDescription="Add measurements for your customers."
+                emptyTitle={t('measurements.noMeasurementsYet')}
+                emptyDescription={t('measurements.noMeasurementsDescription')}
             />
 
             <Modal
                 isOpen={showModal}
                 onClose={closeModal}
-                title={editing ? 'Edit Measurement' : 'Add Measurement'}
+                title={editing ? t('measurements.editMeasurement') : t('measurements.addMeasurement')}
                 size="lg"
             >
                 <form
@@ -769,16 +771,16 @@ export default function Measurements() {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="col-span-2">
                             <label className="block text-xs font-medium text-slate-400 mb-1">
-                                Customer *
+                                {t('common.customer')} *
                             </label>
 
                             <select
                                 {...register('customerId', {
-                                    required: 'Customer required',
+                                    required: t('validation.required'),
                                 })}
                                 className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50"
                             >
-                                <option value="">Select customer…</option>
+                                <option value="">{t('measurements.selectCustomer')}</option>
                                 {customers.map((item) => (
                                     <option key={item._id} value={item._id}>
                                         {item.name} — {item.customerCode}
@@ -795,16 +797,16 @@ export default function Measurements() {
 
                         <div>
                             <label className="block text-xs font-medium text-slate-400 mb-1">
-                                Clothing Type *
+                                {t('measurements.clothingType')} *
                             </label>
 
                             <select
                                 {...register('type', {
-                                    required: 'Type required',
+                                    required: t('validation.required'),
                                 })}
                                 className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50 capitalize"
                             >
-                                <option value="">Select type…</option>
+                                <option value="">{t('measurements.selectType')}</option>
                                 {CLOTHING_TYPES.map((type) => (
                                     <option
                                         key={type}
@@ -827,13 +829,12 @@ export default function Measurements() {
                     <div>
                         <p className="text-xs font-semibold text-slate-400 mb-3 flex items-center gap-2">
                             <Ruler size={13} />
-                            Measurements (in inches)
+                            {t('measurements.measurementsInches')}
                         </p>
 
                         {!selectedType ? (
                             <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] px-4 py-5 text-center text-sm text-slate-500">
-                                Select a clothing type to display its measurement
-                                fields.
+                                {t('measurements.selectTypePrompt')}
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-5">
@@ -849,7 +850,7 @@ export default function Measurements() {
                                                 className="shrink-0 text-indigo-300/80"
                                             />
                                             <span>
-                                                {FIELD_LABELS[field] || field}
+                                                {t(`measurements.fields.${field}`) || FIELD_LABELS[field] || field}
                                             </span>
                                         </label>
 
@@ -863,7 +864,7 @@ export default function Measurements() {
                                                 validate: (value) =>
                                                     value === undefined ||
                                                     value >= 0 ||
-                                                    'Value cannot be negative',
+                                                    t('validation.negativeValue'),
                                             })}
                                             type="number"
                                             step="0.25"
@@ -885,13 +886,13 @@ export default function Measurements() {
 
                     <div>
                         <label className="block text-xs font-medium text-slate-400 mb-1">
-                            Notes
+                            {t('common.notes')}
                         </label>
 
                         <textarea
                             {...register('notes')}
                             rows={2}
-                            placeholder="Fitting notes…"
+                            placeholder={t('measurements.fittingNotes')}
                             className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 resize-none"
                         />
                     </div>
@@ -902,7 +903,7 @@ export default function Measurements() {
                             onClick={closeModal}
                             className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 transition-colors"
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </button>
 
                         <button
@@ -912,10 +913,10 @@ export default function Measurements() {
                             className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors disabled:opacity-60"
                         >
                             {isSubmitting
-                                ? 'Saving…'
+                                ? t('common.loading')
                                 : editing
-                                    ? 'Update'
-                                    : 'Save'}
+                                    ? t('common.update')
+                                    : t('common.save')}
                         </button>
                     </div>
                 </form>
@@ -924,7 +925,7 @@ export default function Measurements() {
             <Modal
                 isOpen={Boolean(sheetMeasurement)}
                 onClose={closeMeasurementSheet}
-                title="Customer Measurement Sheet"
+                title={t('measurements.measurementSheet')}
                 size="lg"
             >
                 {sheetMeasurement && (
@@ -934,48 +935,48 @@ export default function Measurements() {
                     >
                         <div className="text-center border-b border-slate-300 pb-4 mb-5">
                             <h1 className="text-2xl font-bold tracking-wide">
-                                TAILOR MANAGEMENT SYSTEM
+                                {t('measurements.sheetTitle')}
                             </h1>
                             <p className="text-sm mt-1">
-                                Professional Tailoring Services
+                                {t('measurements.sheetSubtitle')}
                             </p>
                             <h2 className="text-lg font-semibold mt-3">
-                                CUSTOMER MEASUREMENT SHEET
+                                {t('measurements.sheetHeading')}
                             </h2>
                         </div>
 
                         <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm mb-6">
                             <p>
-                                <strong>Customer:</strong>{' '}
+                                <strong>{t('common.customer')}:</strong>{' '}
                                 {customer?.name || '—'}
                             </p>
                             <p>
-                                <strong>Customer Code:</strong>{' '}
+                                <strong>{t('measurements.customerCode')}:</strong>{' '}
                                 {customer?.customerCode || '—'}
                             </p>
                             <p>
-                                <strong>Phone:</strong>{' '}
+                                <strong>{t('common.phone')}:</strong>{' '}
                                 {customer?.phone || '—'}
                             </p>
                             <p>
-                                <strong>Date:</strong>{' '}
+                                <strong>{t('measurements.date')}:</strong>{' '}
                                 {formatDate(sheetMeasurement.createdAt)}
                             </p>
                             <p>
-                                <strong>Clothing Type:</strong>{' '}
+                                <strong>{t('measurements.clothingType')}:</strong>{' '}
                                 <span className="capitalize">
                                     {sheetMeasurement.type}
                                 </span>
                             </p>
                             <p>
-                                <strong>Version:</strong> v
+                                <strong>{t('measurements.version')}:</strong> v
                                 {sheetMeasurement.version ?? 1}
                             </p>
                         </div>
 
                         <div className="mb-5">
                             <h3 className="font-semibold border-b border-slate-300 pb-2 mb-3">
-                                Measurements (in inches)
+                                {t('measurements.measurementsInches')}
                             </h3>
 
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -995,7 +996,7 @@ export default function Measurements() {
                                                     className="text-slate-700"
                                                 />
                                                 <span className="text-sm">
-                                                    {FIELD_LABELS[field] ||
+                                                    {t(`measurements.fields.${field}`) || FIELD_LABELS[field] ||
                                                         field}
                                                 </span>
                                             </div>
@@ -1015,24 +1016,24 @@ export default function Measurements() {
 
                         <div className="mb-8">
                             <h3 className="font-semibold border-b border-slate-300 pb-2 mb-2">
-                                Fitting Notes
+                                {t('measurements.fittingNotes')}
                             </h3>
                             <p className="min-h-14 text-sm whitespace-pre-wrap">
-                                {sheetMeasurement.notes || 'No fitting notes.'}
+                                {sheetMeasurement.notes || t('measurements.noFittingNotes')}
                             </p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-12 pt-8 text-sm">
                             <div className="border-t border-slate-500 pt-2 text-center">
-                                Customer Signature
+                                {t('measurements.customerSignature')}
                             </div>
                             <div className="border-t border-slate-500 pt-2 text-center">
-                                Tailor Signature
+                                {t('measurements.tailorSignature')}
                             </div>
                         </div>
 
                         <p className="text-center text-xs mt-10">
-                            Thank you for your business!
+                            {t('measurements.thankYou')}
                         </p>
 
                         <div className="no-print flex justify-end gap-3 mt-7">
@@ -1041,7 +1042,7 @@ export default function Measurements() {
                                 onClick={closeMeasurementSheet}
                                 className="px-4 py-2 rounded-xl text-sm text-slate-600 hover:bg-slate-100"
                             >
-                                Close
+                                {t('common.close')}
                             </button>
 
                             <button
@@ -1050,7 +1051,7 @@ export default function Measurements() {
                                 className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold"
                             >
                                 <Printer size={16} />
-                                Print Sheet
+                                {t('measurements.printSheet')}
                             </button>
                         </div>
                     </div>
@@ -1060,15 +1061,11 @@ export default function Measurements() {
             <Modal
                 isOpen={Boolean(deleting)}
                 onClose={() => setDeleting(null)}
-                title="Delete Measurement"
+                title={t('measurements.deleteMeasurement')}
                 size="sm"
             >
                 <p className="text-slate-300 text-sm mb-5">
-                    Delete this{' '}
-                    <span className="text-white font-semibold capitalize">
-                        {deleting?.type}
-                    </span>{' '}
-                    measurement? This cannot be undone.
+                    {t('measurements.deleteConfirmation', { type: deleting?.type })}
                 </p>
 
                 <div className="flex justify-end gap-3">
@@ -1077,7 +1074,7 @@ export default function Measurements() {
                         onClick={() => setDeleting(null)}
                         className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5 transition-colors"
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </button>
 
                     <button
@@ -1086,7 +1083,7 @@ export default function Measurements() {
                         onClick={() => handleDelete(deleting?._id)}
                         className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold"
                     >
-                        Delete
+                        {t('common.delete')}
                     </button>
                 </div>
             </Modal>

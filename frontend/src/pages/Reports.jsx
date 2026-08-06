@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Download } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -26,6 +27,7 @@ const PIE_COLORS = ['#10b981','#f43f5e','#6366f1','#f59e0b'];
 
 
 export default function Reports() {
+  const { t } = useTranslation();
   const { currentThemeObj } = useTheme();
   const isDark = currentThemeObj?.isDark;
   const [dashboard, setDashboard]     = useState(null);
@@ -59,8 +61,8 @@ export default function Reports() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        title="Reports & Analytics"
-        subtitle="Business performance overview"
+        title={t('reports.title')}
+        subtitle={t('reports.subtitle')}
         actions={
           <div className="flex items-center gap-2">
             <select id="reports-year" value={year} onChange={(e) => setYear(Number(e.target.value))} className="px-3 py-2 rounded-xl text-sm focus:outline-none" style={{ backgroundColor: 'var(--form-background)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', border: '1px solid' }}>
@@ -78,19 +80,19 @@ export default function Reports() {
       {/* P&L Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-card rounded-2xl border p-5 glow-emerald hover:shadow-lg transition-all duration-300" style={{ borderColor: 'rgba(16, 185, 129, 0.3)' }}>
-          <p className="text-xs font-medium" style={{ color: 'var(--success)' }}>Total Income</p>
+          <p className="text-xs font-medium" style={{ color: 'var(--success)' }}>{t('reports.totalIncome')}</p>
           <p className="text-2xl font-bold mt-2" style={{ color: 'var(--success)' }}>{formatCurrency(pl.totalIncome)}</p>
-          <p className="text-xs mt-1" style={{ color: 'rgba(16, 185, 129, 0.6)' }}>This period</p>
+          <p className="text-xs mt-1" style={{ color: 'rgba(16, 185, 129, 0.6)' }}>{t('reports.thisPeriod')}</p>
         </div>
         <div className="glass-card rounded-2xl border p-5 glow-rose hover:shadow-lg transition-all duration-300" style={{ borderColor: 'rgba(244, 63, 94, 0.3)' }}>
-          <p className="text-xs font-medium" style={{ color: 'var(--danger)' }}>Total Expenses</p>
+          <p className="text-xs font-medium" style={{ color: 'var(--danger)' }}>{t('reports.totalExpenses')}</p>
           <p className="text-2xl font-bold mt-2" style={{ color: 'var(--danger)' }}>{formatCurrency(pl.totalExpenses)}</p>
-          <p className="text-xs mt-1" style={{ color: 'rgba(244, 63, 94, 0.6)' }}>This period</p>
+          <p className="text-xs mt-1" style={{ color: 'rgba(244, 63, 94, 0.6)' }}>{t('reports.thisPeriod')}</p>
         </div>
         <div className="glass-card rounded-2xl border p-5 glow-indigo hover:shadow-lg transition-all duration-300" style={{ borderColor: 'rgba(99, 102, 241, 0.3)' }}>
-          <p className="text-xs font-medium" style={{ color: 'var(--primary)' }}>Net Profit</p>
+          <p className="text-xs font-medium" style={{ color: 'var(--primary)' }}>{t('reports.netProfit')}</p>
           <p className={`text-2xl font-bold mt-2`} style={{ color: (pl.netProfit ?? 0) >= 0 ? 'var(--primary)' : 'var(--danger)' }}>{formatCurrency(pl.netProfit)}</p>
-          <p className="text-xs mt-1" style={{ color: 'rgba(99, 102, 241, 0.6)' }}>Income – Expenses</p>
+          <p className="text-xs mt-1" style={{ color: 'rgba(99, 102, 241, 0.6)' }}>{t('reports.incomeMinusExpenses')}</p>
         </div>
       </div>
 
@@ -98,7 +100,7 @@ export default function Reports() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         {/* Profit trend chart */}
         <div className="xl:col-span-2 glass-card rounded-2xl border p-5 hover:transition-all hover:duration-300" style={{ borderColor: 'var(--border-color)', '--hover-border': 'rgba(99, 102, 241, 0.3)' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <h3 className="text-sm font-semibold mb-5" style={{ color: 'var(--primary)' }}>Monthly Profit Trend</h3>
+          <h3 className="text-sm font-semibold mb-5" style={{ color: 'var(--primary)' }}>{t('reports.monthlyProfitTrend')}</h3>
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={monthly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
@@ -111,16 +113,16 @@ export default function Reports() {
               <XAxis dataKey="month" tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
               <Tooltip content={<ChartTooltip />} />
-              <Area type="monotone" dataKey="income"   stroke="#10b981" strokeWidth={2} fill="none" name="Income" />
-              <Area type="monotone" dataKey="expenses" stroke="#f43f5e" strokeWidth={2} fill="none" name="Expenses" />
-              <Area type="monotone" dataKey="profit"   stroke={isDark ? '#6366f1' : '#6D5DF6'} strokeWidth={2} fill="url(#profitGrad)" name="Profit" />
+              <Area type="monotone" dataKey="income"   stroke="#10b981" strokeWidth={2} fill="none" name={t('reports.income')} />
+              <Area type="monotone" dataKey="expenses" stroke="#f43f5e" strokeWidth={2} fill="none" name={t('reports.expenses')} />
+              <Area type="monotone" dataKey="profit"   stroke={isDark ? '#6366f1' : '#6D5DF6'} strokeWidth={2} fill="url(#profitGrad)" name={t('reports.profit')} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
         {/* P&L Pie */}
         <div className="glass-card rounded-2xl border p-5 hover:transition-all hover:duration-300" style={{ borderColor: 'var(--border-color)', '--hover-border': 'rgba(244, 63, 94, 0.3)' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(244, 63, 94, 0.3)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--danger)' }}>P&L Breakdown</h3>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--danger)' }}>{t('reports.plBreakdown')}</h3>
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={plData.filter(d => d.value > 0)} cx="50%" cy="45%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
@@ -135,15 +137,15 @@ export default function Reports() {
 
       {/* Monthly Income vs Expenses Bar */}
       <div className="glass-card rounded-2xl border p-5 hover:transition-all hover:duration-300" style={{ borderColor: 'var(--border-color)' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-        <h3 className="text-sm font-semibold mb-5" style={{ color: 'var(--success)' }}>Income vs Expenses (Monthly)</h3>
+        <h3 className="text-sm font-semibold mb-5" style={{ color: 'var(--success)' }}>{t('reports.incomeVsExpenses')}</h3>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={monthly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
             <XAxis dataKey="month" tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
             <Tooltip content={<ChartTooltip />} />
-            <Bar dataKey="income"   fill="#10b981" radius={[4,4,0,0]} name="Income" />
-            <Bar dataKey="expenses" fill="#f43f5e" radius={[4,4,0,0]} name="Expenses" />
+            <Bar dataKey="income"   fill="#10b981" radius={[4,4,0,0]} name={t('reports.income')} />
+            <Bar dataKey="expenses" fill="#f43f5e" radius={[4,4,0,0]} name={t('reports.expenses')} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -152,13 +154,13 @@ export default function Reports() {
       {deliveries.length > 0 && (
         <div className="glass-card rounded-2xl border hover:transition-all hover:duration-300" style={{ borderColor: 'var(--border-color)' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
-            <h3 className="text-sm font-semibold" style={{ color: 'rgba(139, 92, 246, 0.8)' }}>Pending Deliveries</h3>
+            <h3 className="text-sm font-semibold" style={{ color: 'rgba(139, 92, 246, 0.8)' }}>{t('reports.pendingDeliveries')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: `1px solid var(--divider-color)` }}>
-                  {['Order #','Customer','Delivery Date','Amount','Status'].map((h) => (
+                  {[t('reports.orderNumber'), t('common.customer'), t('reports.deliveryDate'), t('common.amount'), t('common.status')].map((h) => (
                     <th key={h} className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: 'var(--text-secondary)', backgroundColor: 'var(--table-header-background)' }}>{h}</th>
                   ))}
                 </tr>

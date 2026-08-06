@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Users, Ruler, ShoppingBag, CreditCard,
   BookOpen, Receipt, UserCog, BarChart3, Settings, Scissors,
@@ -9,19 +10,20 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 
 const NAV_ITEMS = [
-  { to: '/',            icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/customers',   icon: Users,           label: 'Customers' },
-  { to: '/measurements',icon: Ruler,           label: 'Measurements' },
-  { to: '/orders',      icon: ShoppingBag,     label: 'Orders' },
-  { to: '/payments',    icon: CreditCard,      label: 'Payments' },
-  { to: '/ledger',      icon: BookOpen,        label: 'Ledger' },
-  { to: '/expenses',    icon: Receipt,         label: 'Expenses' },
-  { to: '/staff',       icon: UserCog,         label: 'Staff' },
-  { to: '/reports',     icon: BarChart3,       label: 'Reports' },
-  { to: '/settings',    icon: Settings,        label: 'Settings' },
+  { to: '/',            icon: LayoutDashboard, key: 'dashboard' },
+  { to: '/customers',   icon: Users,           key: 'customers' },
+  { to: '/measurements',icon: Ruler,           key: 'measurements' },
+  { to: '/orders',      icon: ShoppingBag,     key: 'orders' },
+  { to: '/payments',    icon: CreditCard,      key: 'payments' },
+  { to: '/ledger',      icon: BookOpen,        key: 'ledger' },
+  { to: '/expenses',    icon: Receipt,         key: 'expenses' },
+  { to: '/staff',       icon: UserCog,         key: 'staff' },
+  { to: '/reports',     icon: BarChart3,       key: 'reports' },
+  { to: '/settings',    icon: Settings,        key: 'settings' },
 ];
 
 export default function Sidebar() {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const { logout, user } = useAuth();
   const { currentThemeObj } = useTheme();
@@ -63,22 +65,23 @@ export default function Sidebar() {
           backgroundColor: 'var(--primary)',
           borderColor: 'var(--primary-hover)',
         }}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-label={collapsed ? t('common.expandSidebar') : t('common.collapseSidebar')}
       >
         {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
       </button>
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+        {NAV_ITEMS.map(({ to, icon: Icon, key }) => {
           const isActive = to === '/'
             ? location.pathname === '/'
             : location.pathname.startsWith(to);
+          const label = t(`navigation.${key}`);
           return (
             <NavLink
               key={to}
               to={to}
-              id={`nav-${label.toLowerCase()}`}
+              id={`nav-${key}`}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative ${
                 isActive ? 'border' : ''
               }`}
@@ -113,7 +116,7 @@ export default function Sidebar() {
               )}
               {/* Tooltip when collapsed */}
               {collapsed && (
-                <div 
+                <div
                   className="absolute left-full ml-3 px-2 py-1 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border"
                   style={{
                     backgroundColor: isDark ? '#1e293b' : '#334155',
@@ -150,10 +153,10 @@ export default function Sidebar() {
           onMouseLeave={(e) => {
             e.currentTarget.style.color = 'var(--danger)';
           }}
-          aria-label="Logout"
+          aria-label={t('navigation.logout')}
         >
           <LogOut size={18} className="flex-shrink-0 group-hover:scale-110 transition-transform" />
-          {!collapsed && <span>Logout</span>}
+          {!collapsed && <span>{t('navigation.logout')}</span>}
         </button>
       </div>
     </aside>

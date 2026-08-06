@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Save, Store, Bell, Shield, Palette, Globe } from 'lucide-react';
 import PageHeader from '../components/common/PageHeader';
 import toast from 'react-hot-toast';
@@ -12,6 +13,7 @@ const TABS = [
 ];
 
 export default function Settings() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('shop');
   const { user } = useAuth();
   const { register, handleSubmit, formState: { isSubmitting } } = useForm({
@@ -26,12 +28,12 @@ export default function Settings() {
 
   const onSubmit = async () => {
     await new Promise((r) => setTimeout(r, 600));
-    toast.success('Settings saved successfully');
+    toast.success(t('settings.settingsSaved'));
   };
 
   return (
     <div className="space-y-5 animate-fade-in">
-      <PageHeader title="Settings" subtitle="Manage your shop configuration" />
+      <PageHeader title={t('settings.title')} subtitle={t('settings.subtitle')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Tabs */}
@@ -57,18 +59,18 @@ export default function Settings() {
         <div className="lg:col-span-3 glass-card rounded-2xl border border-white/8 p-6">
           {activeTab === 'shop' && (
             <form id="settings-shop-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <h3 className="text-sm font-semibold text-white mb-4">Shop Information</h3>
+              <h3 className="text-sm font-semibold text-white mb-4">{t('settings.shopInformation')}</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Shop Name</label>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">{t('settings.shopName')}</label>
                   <input {...register('shopName')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Phone</label>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">{t('settings.phone')}</label>
                   <input {...register('shopPhone')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Currency</label>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">{t('settings.currency')}</label>
                   <select {...register('currency')} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50">
                     <option value="PKR">PKR – Pakistani Rupee</option>
                     <option value="USD">USD – US Dollar</option>
@@ -76,13 +78,13 @@ export default function Settings() {
                   </select>
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Address</label>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">{t('settings.address')}</label>
                   <textarea {...register('shopAddress')} rows={2} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50 resize-none" />
                 </div>
               </div>
               <div className="flex justify-end pt-2">
                 <button id="save-shop-settings-btn" type="submit" disabled={isSubmitting} className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold disabled:opacity-60">
-                  <Save size={14} /> {isSubmitting ? 'Saving…' : 'Save Settings'}
+                  <Save size={14} /> {isSubmitting ? t('common.loading') : t('settings.saveSettings')}
                 </button>
               </div>
             </form>
@@ -90,12 +92,12 @@ export default function Settings() {
 
           {activeTab === 'notifications' && (
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-white mb-4">Notification Preferences</h3>
+              <h3 className="text-sm font-semibold text-white mb-4">{t('settings.notificationPreferences')}</h3>
               {[
-                { id: 'notif-order-ready',    label: 'Order Ready Alerts',    desc: 'Notify when an order is ready for delivery' },
-                { id: 'notif-payment-due',    label: 'Payment Reminders',     desc: 'Alert for outstanding customer balances' },
-                { id: 'notif-delivery-today', label: 'Delivery Due Today',    desc: 'Morning alert for orders due today' },
-                { id: 'notif-new-order',      label: 'New Order Created',     desc: 'Notify when a new order is placed' },
+                { id: 'notif-order-ready',    label: t('settings.orderReadyAlerts'),    desc: t('settings.orderReadyAlertsDesc') },
+                { id: 'notif-payment-due',    label: t('settings.paymentReminders'),     desc: t('settings.paymentRemindersDesc') },
+                { id: 'notif-delivery-today', label: t('settings.deliveryDueToday'),    desc: t('settings.deliveryDueTodayDesc') },
+                { id: 'notif-new-order',      label: t('settings.newOrderCreated'),     desc: t('settings.newOrderCreatedDesc') },
               ].map(({ id, label, desc }) => (
                 <div key={id} className="flex items-start justify-between py-3 border-b border-white/5 last:border-0">
                   <div>
@@ -114,21 +116,21 @@ export default function Settings() {
 
           {activeTab === 'security' && (
             <div className="space-y-5">
-              <h3 className="text-sm font-semibold text-white mb-4">Security Settings</h3>
+              <h3 className="text-sm font-semibold text-white mb-4">{t('settings.securitySettings')}</h3>
               <div className="glass-card rounded-xl border border-white/8 p-4">
-                <p className="text-xs font-semibold text-slate-300 mb-1">Logged in as</p>
+                <p className="text-xs font-semibold text-slate-300 mb-1">{t('settings.loggedInAs')}</p>
                 <p className="text-sm text-white">{user?.name}</p>
                 <p className="text-xs text-indigo-400">{user?.email}</p>
                 <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 capitalize">{user?.role}</span>
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-slate-400 mb-3">Change Password</h4>
+                <h4 className="text-xs font-semibold text-slate-400 mb-3">{t('settings.changePassword')}</h4>
                 <div className="space-y-3">
-                  <input id="current-password" type="password" placeholder="Current password" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
-                  <input id="new-password" type="password" placeholder="New password" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
-                  <input id="confirm-password" type="password" placeholder="Confirm new password" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
-                  <button id="change-password-btn" className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors" onClick={() => toast.success('Password updated (demo)')}>
-                    Update Password
+                  <input id="current-password" type="password" placeholder={t('settings.currentPassword')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
+                  <input id="new-password" type="password" placeholder={t('settings.newPassword')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
+                  <input id="confirm-password" type="password" placeholder={t('settings.confirmNewPassword')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
+                  <button id="change-password-btn" className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors" onClick={() => toast.success(t('settings.passwordUpdated'))}>
+                    {t('settings.updatePassword')}
                   </button>
                 </div>
               </div>

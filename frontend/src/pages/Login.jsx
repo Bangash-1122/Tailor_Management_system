@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Scissors, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 
 export default function Login() {
+  const { t } = useTranslation();
   const { login, isAuthenticated, loading } = useAuth();
   const { currentThemeObj } = useTheme();
   const isDark = currentThemeObj?.isDark;
@@ -29,9 +31,7 @@ export default function Login() {
       return;
     }
 
-    toast.success(
-      'Logged in successfully'
-    );
+    toast.success(t('auth.loginSuccess'));
   };
 
   return (
@@ -47,19 +47,19 @@ export default function Login() {
             <Scissors size={28} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Tailor Pro</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Advanced Tailor Management System</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{t('auth.loginTitle')}</p>
         </div>
 
         {/* Card */}
         <div className="glass-card rounded-2xl border p-8" style={{ borderColor: 'var(--border-color)' }}>
-          <h2 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Welcome back</h2>
-          <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>Sign in to your account</p>
+          <h2 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('auth.login')}</h2>
+          <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>{t('auth.loginSubtitle')}</p>
 
           <form id="login-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Email */}
             <div>
               <label htmlFor="login-email" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
-                Email address
+                {t('auth.email')}
               </label>
               <input
                 id="login-email"
@@ -74,14 +74,14 @@ export default function Login() {
                   border: '1px solid'
                 }}
                 {...register('email', {
-                  required: 'Email is required',
+                  required: t('validation.required'),
 
                   pattern: {
                     value:
                       /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
 
                     message:
-                      'Please enter a valid email address',
+                      t('validation.invalidEmail'),
                   },
                 })}
               />
@@ -91,7 +91,7 @@ export default function Login() {
             {/* Password */}
             <div>
               <label htmlFor="login-password" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
-                Password
+                {t('auth.password')}
               </label>
               <div className="relative">
                 <input
@@ -107,11 +107,11 @@ export default function Login() {
                     border: '1px solid'
                   }}
                   {...register('password', {
-                    required: 'Password is required',
+                    required: t('validation.required'),
                     minLength: {
                       value: 6,
                       message:
-                        'Password must contain at least 6 characters',
+                        t('validation.minLength', { min: 6 }),
                     },
                   })}
                 />
@@ -144,7 +144,7 @@ export default function Login() {
               onMouseLeave={(e) => { if (!loading) e.currentTarget.style.opacity = '1'; }}
             >
               {loading && <Loader2 size={16} className="animate-spin" />}
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? t('common.loading') : t('auth.loginButton')}
             </button>
           </form>
         </div>

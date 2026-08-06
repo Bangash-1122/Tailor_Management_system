@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Users, ShoppingBag, CreditCard, TrendingUp,
   Clock, AlertTriangle, CheckCircle, Package,
@@ -28,6 +29,7 @@ const STATUS_COLORS_CHART = {
 };
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { currentThemeObj } = useTheme();
   const isDark = currentThemeObj?.isDark;
   const [stats, setStats] = useState(null);
@@ -72,10 +74,10 @@ export default function Dashboard() {
     <div className="space-y-6 animate-fade-in">
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard title="Total Customers"   value={totalCustomers}         icon={Users}        color="indigo"  trend={12}  trendLabel="vs last month" className="animate-fade-in-up stagger-1" />
-        <StatCard title="Active Orders"     value={activeOrders}           icon={ShoppingBag}  color="violet"  trend={8}   trendLabel="vs last month" className="animate-fade-in-up stagger-2" />
-        <StatCard title="Total Income"      value={formatCurrency(totalIncome)}     icon={TrendingUp}   color="emerald" trend={15}  trendLabel="vs last month" className="animate-fade-in-up stagger-3" />
-        <StatCard title="Pending Payments"  value={formatCurrency(pendingPayments)} icon={CreditCard}   color="amber"   trend={-3}  trendLabel="vs last month" className="animate-fade-in-up stagger-4" />
+        <StatCard title={t('dashboard.totalCustomers')}   value={totalCustomers}         icon={Users}        color="indigo"  trend={12}  trendLabel={t('dashboard.vsLastMonth')} className="animate-fade-in-up stagger-1" />
+        <StatCard title={t('dashboard.activeOrders')}     value={activeOrders}           icon={ShoppingBag}  color="violet"  trend={8}   trendLabel={t('dashboard.vsLastMonth')} className="animate-fade-in-up stagger-2" />
+        <StatCard title={t('dashboard.totalIncome')}      value={formatCurrency(totalIncome)}     icon={TrendingUp}   color="emerald" trend={15}  trendLabel={t('dashboard.vsLastMonth')} className="animate-fade-in-up stagger-3" />
+        <StatCard title={t('dashboard.pendingPayments')}  value={formatCurrency(pendingPayments)} icon={CreditCard}   color="amber"   trend={-3}  trendLabel={t('dashboard.vsLastMonth')} className="animate-fade-in-up stagger-4" />
       </div>
 
       {/* Charts Row */}
@@ -84,12 +86,12 @@ export default function Dashboard() {
         <div className="xl:col-span-2 glass-card rounded-2xl border p-5 animate-fade-in-up stagger-2" style={{ borderColor: 'var(--border-color)' }}>
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Income vs Expenses</h3>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Monthly overview</p>
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t('dashboard.incomeVsExpenses')}</h3>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{t('dashboard.monthlyOverview')}</p>
             </div>
             <div className="flex items-center gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: '#6366f1' }} />Income</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: '#f43f5e' }} />Expenses</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: '#6366f1' }} />{t('dashboard.income')}</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: '#f43f5e' }} />{t('dashboard.expenses')}</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
@@ -108,16 +110,16 @@ export default function Dashboard() {
               <XAxis dataKey="month" tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
               <Tooltip content={<ChartTooltip />} />
-              <Area type="monotone" dataKey="income"   stroke="#6366f1" strokeWidth={2} fill="url(#incomeGrad)"  name="Income" />
-              <Area type="monotone" dataKey="expenses" stroke="#f43f5e" strokeWidth={2} fill="url(#expenseGrad)" name="Expenses" />
+              <Area type="monotone" dataKey="income"   stroke="#6366f1" strokeWidth={2} fill="url(#incomeGrad)"  name={t('dashboard.income')} />
+              <Area type="monotone" dataKey="expenses" stroke="#f43f5e" strokeWidth={2} fill="url(#expenseGrad)" name={t('dashboard.expenses')} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
         {/* Pie Chart — Order Status */}
         <div className="glass-card rounded-2xl border p-5 animate-fade-in-up stagger-3" style={{ borderColor: 'var(--border-color)' }}>
-          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Order Status</h3>
-          <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Current distribution</p>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('dashboard.orderStatus')}</h3>
+          <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>{t('dashboard.currentDistribution')}</p>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={orderStatusDist} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
@@ -135,10 +137,10 @@ export default function Dashboard() {
       {/* Quick Status Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Pending',   count: s.pendingCount ?? 8,  icon: Clock,         color: 'text-amber-400',  bg: 'bg-amber-500/10' },
-          { label: 'Stitching', count: s.stitchingCount ?? 12, icon: Scissors,    color: 'text-violet-400', bg: 'bg-violet-500/10' },
-          { label: 'Ready',     count: s.readyCount ?? 6,    icon: CheckCircle,   color: 'text-emerald-400',bg: 'bg-emerald-500/10' },
-          { label: 'Overdue',   count: s.overdueCount ?? 3,  icon: AlertTriangle, color: 'text-rose-400',   bg: 'bg-rose-500/10' },
+          { label: t('dashboard.pending'),   count: s.pendingCount ?? 8,  icon: Clock,         color: 'text-amber-400',  bg: 'bg-amber-500/10' },
+          { label: t('dashboard.stitching'), count: s.stitchingCount ?? 12, icon: Scissors,    color: 'text-violet-400', bg: 'bg-violet-500/10' },
+          { label: t('dashboard.ready'),     count: s.readyCount ?? 6,    icon: CheckCircle,   color: 'text-emerald-400',bg: 'bg-emerald-500/10' },
+          { label: t('dashboard.overdue'),   count: s.overdueCount ?? 3,  icon: AlertTriangle, color: 'text-rose-400',   bg: 'bg-rose-500/10' },
         ].map(({ label, count, icon: Icon, color, bg }, i) => (
           <div key={label} className={`glass-card rounded-xl border border-white/8 p-4 flex items-center gap-3 animate-fade-in-up stagger-${i+1}`}>
             <div className={`w-10 h-10 rounded-lg ${bg} flex items-center justify-center flex-shrink-0`}>
@@ -155,19 +157,19 @@ export default function Dashboard() {
       {/* Recent Orders Table */}
       <div className="glass-card rounded-2xl border animate-fade-in-up stagger-3" style={{ borderColor: 'var(--border-color)' }}>
         <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
-          <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Recent Orders</h3>
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t('dashboard.recentOrders')}</h3>
           <Link to="/orders" className="text-xs flex items-center gap-1 transition-colors hover:opacity-80" style={{ color: 'var(--primary)' }}>
-            View all <ArrowRight size={12} />
+            {t('dashboard.viewAll')} <ArrowRight size={12} />
           </Link>
         </div>
         {recentOrders.length === 0 ? (
-          <div className="py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>No recent orders</div>
+          <div className="py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>{t('dashboard.noRecentOrders')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: `1px solid var(--divider-color)` }}>
-                  {['Order #', 'Customer', 'Items', 'Amount', 'Delivery', 'Status'].map((h) => (
+                  {[t('dashboard.orderNumber'), t('dashboard.customer'), t('dashboard.items'), t('common.amount'), t('dashboard.delivery'), t('common.status')].map((h) => (
                     <th key={h} className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)', backgroundColor: 'var(--table-header-background)' }}>{h}</th>
                   ))}
                 </tr>

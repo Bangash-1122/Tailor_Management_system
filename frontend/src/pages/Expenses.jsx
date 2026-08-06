@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageHeader from '../components/common/PageHeader';
@@ -23,6 +24,7 @@ const CAT_COLORS = {
 };
 
 export default function Expenses() {
+  const { t } = useTranslation();
   const [expenses, setExpenses]   = useState([]);
   const [loading, setLoading]     = useState(true);
   const [search, setSearch]       = useState('');
@@ -52,14 +54,14 @@ export default function Expenses() {
     const payload = { ...data, amount: Number(data.amount) };
     try {
       editing ? await updateExpense(editing._id, payload) : await createExpense(payload);
-      toast.success(editing ? 'Expense updated' : 'Expense added');
+      toast.success(editing ? t('expenses.expenseUpdated') : t('expenses.expenseAdded'));
       closeModal(); fetchExpenses();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || t('expenses.failed')); }
   };
 
   const handleDelete = async (id) => {
-    try { await deleteExpense(id); toast.success('Deleted'); setDeleting(null); fetchExpenses(); }
-    catch { toast.error('Delete failed'); }
+    try { await deleteExpense(id); toast.success(t('expenses.deleted')); setDeleting(null); fetchExpenses(); }
+    catch { toast.error(t('expenses.deleteFailed')); }
   };
 
   // Chart data by category
@@ -71,14 +73,14 @@ export default function Expenses() {
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
 
   const columns = [
-    { key: 'expenseDate', label: 'Date', sortable: true, render: (v) => formatDate(v) },
-    { key: 'title', label: 'Title', render: (v) => <span className="font-medium text-slate-200">{v}</span> },
-    { key: 'category', label: 'Category', render: (v) => <Badge label={v} className={`${CAT_COLORS[v] ?? CAT_COLORS.other} capitalize`} /> },
-    { key: 'amount', label: 'Amount', sortable: true, render: (v) => <span className="font-bold text-rose-400">{formatCurrency(v)}</span> },
-    { key: 'paymentMethod', label: 'Method', render: (v) => <span className="text-slate-400 capitalize">{v}</span> },
-    { key: 'description', label: 'Description', render: (v) => <span className="text-slate-500 text-xs">{v || '—'}</span> },
+    { key: 'expenseDate', label: t('common.date'), sortable: true, render: (v) => formatDate(v) },
+    { key: 'title', label: t('expenses.title'), render: (v) => <span className="font-medium text-slate-200">{v}</span> },
+    { key: 'category', label: t('expenses.category'), render: (v) => <Badge label={v} className={`${CAT_COLORS[v] ?? CAT_COLORS.other} capitalize`} /> },
+    { key: 'amount', label: t('common.amount'), sortable: true, render: (v) => <span className="font-bold text-rose-400">{formatCurrency(v)}</span> },
+    { key: 'paymentMethod', label: t('expenses.method'), render: (v) => <span className="text-slate-400 capitalize">{v}</span> },
+    { key: 'description', label: t('expenses.description'), render: (v) => <span className="text-slate-500 text-xs">{v || '—'}</span> },
     {
-      key: '_id', label: 'Actions',
+      key: '_id', label: t('common.actions'),
       render: (_, row) => (
         <div className="flex items-center gap-2">
           <button id={`edit-expense-${row._id}`} onClick={() => openEdit(row)} className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"><Edit2 size={14} /></button>
@@ -91,11 +93,11 @@ export default function Expenses() {
   return (
     <div className="space-y-5 animate-fade-in">
       <PageHeader
-        title="Expenses"
-        subtitle={`Total: ${formatCurrency(totalExpenses)}`}
+        title={t('expenses.title')}
+        subtitle={`${t('expenses.total')}: ${formatCurrency(totalExpenses)}`}
         actions={
           <button id="add-expense-btn" onClick={openAdd} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors glow-indigo">
-            <Plus size={16} /> Add Expense
+            <Plus size={16} /> {t('expenses.addExpense')}
           </button>
         }
       />
@@ -121,7 +123,7 @@ export default function Expenses() {
         dark:text-white
       "
     >
-      Expenses by Category
+      {t('expenses.byCategory')}
     </p>
 
     <ResponsiveContainer width="100%" height={180}>
@@ -238,64 +240,64 @@ export default function Expenses() {
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input id="expenses-search" type="text" placeholder="Search expenses…" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
+          <input id="expenses-search" type="text" placeholder={t('expenses.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
         </div>
         <select id="expenses-cat-filter" value={catFilter} onChange={(e) => setCatFilter(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-300 focus:outline-none focus:border-indigo-500/50">
-          <option value="">All Categories</option>
+          <option value="">{t('expenses.allCategories')}</option>
           {CATEGORIES.map((c) => <option key={c} value={c} className="capitalize bg-[#0f1629]">{c}</option>)}
         </select>
       </div>
 
-      <DataTable columns={columns} data={expenses} loading={loading} emptyTitle="No expenses yet" emptyDescription="Start tracking your shop expenses." />
+      <DataTable columns={columns} data={expenses} loading={loading} emptyTitle={t('expenses.noExpensesYet')} emptyDescription={t('expenses.noExpensesDescription')} />
 
-      <Modal isOpen={showModal} onClose={closeModal} title={editing ? 'Edit Expense' : 'Add Expense'}>
+      <Modal isOpen={showModal} onClose={closeModal} title={editing ? t('expenses.editExpense') : t('expenses.addExpense')}>
         <form id="expense-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-400 mb-1">Title *</label>
-              <input {...register('title', { required: 'Required' })} placeholder="e.g. Monthly Rent" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('expenses.title')} *</label>
+              <input {...register('title', { required: t('validation.required') })} placeholder={t('expenses.titlePlaceholder')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
               {errors.title && <p className="text-xs text-rose-400 mt-1">{errors.title.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Category *</label>
-              <select {...register('category', { required: 'Required' })} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50 capitalize">
-                <option value="">Select…</option>
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('expenses.category')} *</label>
+              <select {...register('category', { required: t('validation.required') })} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50 capitalize">
+                <option value="">{t('expenses.selectCategory')}</option>
                 {CATEGORIES.map((c) => <option key={c} value={c} className="capitalize">{c}</option>)}
               </select>
               {errors.category && <p className="text-xs text-rose-400 mt-1">{errors.category.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Amount (Rs.) *</label>
-              <input {...register('amount', { required: 'Required', min: { value: 1, message: 'Must be > 0' } })} type="number" min="1" placeholder="0" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50" />
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('expenses.amount')} *</label>
+              <input {...register('amount', { required: t('validation.required'), min: { value: 1, message: t('validation.mustBePositive') } })} type="number" min="1" placeholder="0" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50" />
               {errors.amount && <p className="text-xs text-rose-400 mt-1">{errors.amount.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Date</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('expenses.date')}</label>
               <input {...register('expenseDate')} type="date" defaultValue={new Date().toISOString().slice(0,10)} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Payment Method</label>
-              <input {...register('paymentMethod')} placeholder="cash" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('expenses.paymentMethod')}</label>
+              <input {...register('paymentMethod')} placeholder={t('expenses.paymentMethodPlaceholder')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
             </div>
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-400 mb-1">Description</label>
-              <textarea {...register('description')} rows={2} placeholder="Details…" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 resize-none" />
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('expenses.description')}</label>
+              <textarea {...register('description')} rows={2} placeholder={t('expenses.descriptionPlaceholder')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 resize-none" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={closeModal} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5">Cancel</button>
+            <button type="button" onClick={closeModal} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5">{t('common.cancel')}</button>
             <button id="expense-submit-btn" type="submit" disabled={isSubmitting} className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold disabled:opacity-60">
-              {isSubmitting ? 'Saving…' : editing ? 'Update' : 'Add'}
+              {isSubmitting ? t('common.loading') : editing ? t('common.update') : t('common.add')}
             </button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title="Delete Expense" size="sm">
-        <p className="text-slate-300 text-sm mb-5">Delete <span className="text-white font-semibold">{deleting?.title}</span>?</p>
+      <Modal isOpen={!!deleting} onClose={() => setDeleting(null)} title={t('expenses.deleteExpense')} size="sm">
+        <p className="text-slate-300 text-sm mb-5">{t('expenses.deleteConfirmation', { title: deleting?.title })}</p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setDeleting(null)} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5">Cancel</button>
-          <button id="confirm-delete-expense-btn" onClick={() => handleDelete(deleting?._id)} className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold">Delete</button>
+          <button onClick={() => setDeleting(null)} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5">{t('common.cancel')}</button>
+          <button id="confirm-delete-expense-btn" onClick={() => handleDelete(deleting?._id)} className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold">{t('common.delete')}</button>
         </div>
       </Modal>
     </div>

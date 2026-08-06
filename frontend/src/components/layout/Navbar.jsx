@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import {
   Bell,
@@ -17,6 +18,7 @@ import { getInitials, formatDate } from '../../utils/helpers';
 import { getCustomers } from '../../api/customers';
 import { getPayments } from '../../api/payments';
 import ThemeSwitcher from '../common/ThemeSwitcher';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 
 const PAGE_TITLES = {
   '/': 'Dashboard',
@@ -44,6 +46,7 @@ const getPaymentAmount = (payment) =>
   0;
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { currentThemeObj } = useTheme();
   const location = useLocation();
@@ -386,10 +389,10 @@ export default function Navbar() {
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--surface-hover)';
             }}
-            aria-label="Search customers"
+            aria-label={t('common.searchCustomers')}
           >
             <Search size={15} />
-            <span>Search customer...</span>
+            <span>{t('common.searchCustomer')}</span>
 
             <kbd className="text-xs px-1.5 py-0.5 rounded" style={{
               backgroundColor: 'var(--surface-hover)',
@@ -415,7 +418,7 @@ export default function Navbar() {
               e.currentTarget.style.color = 'var(--text-secondary)';
               e.currentTarget.style.backgroundColor = 'transparent';
             }}
-            aria-label="Search customers"
+            aria-label={t('common.searchCustomers')}
           >
             <Search size={18} />
           </button>
@@ -435,7 +438,7 @@ export default function Navbar() {
                 e.currentTarget.style.color = 'var(--text-secondary)';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
-              aria-label="Payment notifications"
+              aria-label={t('common.paymentNotifications')}
             >
               <Bell size={18} />
 
@@ -580,6 +583,7 @@ export default function Navbar() {
           </div>
 
           <ThemeSwitcher />
+          <LanguageSwitcher />
 
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-sm font-bold select-none">
@@ -647,7 +651,7 @@ export default function Navbar() {
                       goBackToSearchResults();
                     }
                   }}
-                  placeholder="Search customer by name, code, phone or email..."
+                  placeholder={t('common.searchCustomerPlaceholder')}
                   className="h-full w-full rounded-xl bg-transparent py-2 pl-9 pr-9 text-sm outline-none"
                   style={{
                     color: 'var(--text-primary)',
@@ -672,7 +676,7 @@ export default function Navbar() {
                     }}
                     className="absolute right-2 rounded-md p-1 transition-colors"
                     style={{ color: 'var(--text-muted)' }}
-                    aria-label="Clear customer search"
+                    aria-label={t('common.clearCustomerSearch')}
                   >
                     <X size={14} />
                   </button>
@@ -695,7 +699,7 @@ export default function Navbar() {
                   event.currentTarget.style.color =
                     'var(--text-muted)';
                 }}
-                aria-label="Close customer search"
+                aria-label={t('common.closeCustomerSearch')}
               >
                 <X size={17} />
               </button>
@@ -816,14 +820,14 @@ export default function Navbar() {
                     style={{ color: 'var(--text-muted)' }}
                   />
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    Enter at least 2 letters to search customers.
+                    {t('common.searchMinLetters')}
                   </p>
                 </div>
               ) : searchLoading ? (
                 <div className="px-4 py-10 text-center">
                   <div className="mx-auto mb-3 h-6 w-6 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--primary)' }} />
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    Searching customers...
+                    {t('common.searchingCustomers')}
                   </p>
                 </div>
               ) : customers.length > 0 ? (

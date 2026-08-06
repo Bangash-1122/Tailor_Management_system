@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
 export default function ThemeSwitcher() {
+  const { t } = useTranslation();
   const { theme, setTheme, themes, currentThemeObj } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -52,7 +54,7 @@ export default function ThemeSwitcher() {
           e.currentTarget.style.backgroundColor = 'transparent';
         }}
         title={`Current Theme: ${currentThemeObj.name}`}
-        aria-label="Toggle theme dropdown"
+        aria-label={t('common.toggleThemeDropdown')}
       >
         <TriggerIcon size={18} />
       </button>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Plus, Search, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
@@ -32,6 +33,7 @@ const TYPE_COLORS = {
 };
 
 export default function Payments() {
+  const { t } = useTranslation();
   const { currentThemeObj } = useTheme();
   const isDark = currentThemeObj?.isDark;
   const [payments, setPayments]   = useState([]);
@@ -60,29 +62,29 @@ export default function Payments() {
   const onSubmit = async (data) => {
     try {
       await createPayment({ ...data, amount: Number(data.amount) });
-      toast.success('Payment recorded');
+      toast.success(t('payments.paymentRecorded'));
       setShowModal(false); reset(); fetchAll();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || t('payments.failed')); }
   };
 
   const columns = [
-    { key: 'paymentDate', label: 'Date', sortable: true, render: (v) => formatDate(v) },
-    { key: 'customerId', label: 'Customer', render: (v) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{v?.name ?? '—'}</span> },
-    { key: 'orderId', label: 'Order #', render: (v) => v?.orderNo ? <span className="font-mono text-xs" style={{ color: 'var(--primary)' }}>{v.orderNo}</span> : '—' },
-    { key: 'amount', label: 'Amount', sortable: true, render: (v) => <span className="font-bold" style={{ color: 'var(--success)' }}>{formatCurrency(v)}</span> },
-    { key: 'paymentMethod', label: 'Method', render: (v) => <Badge label={v} className={METHOD_COLORS[v] ?? 'bg-slate-500/20 text-slate-400 border-slate-500/30'} /> },
-    { key: 'paymentType', label: 'Type', render: (v) => <Badge label={v} className={TYPE_COLORS[v] ?? 'bg-slate-500/20 text-slate-400 border-slate-500/30'} /> },
-    { key: 'transactionId', label: 'Txn ID', render: (v) => v ? <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>{v}</span> : '—' },
+    { key: 'paymentDate', label: t('common.date'), sortable: true, render: (v) => formatDate(v) },
+    { key: 'customerId', label: t('common.customer'), render: (v) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{v?.name ?? '—'}</span> },
+    { key: 'orderId', label: t('payments.orderNumber'), render: (v) => v?.orderNo ? <span className="font-mono text-xs" style={{ color: 'var(--primary)' }}>{v.orderNo}</span> : '—' },
+    { key: 'amount', label: t('common.amount'), sortable: true, render: (v) => <span className="font-bold" style={{ color: 'var(--success)' }}>{formatCurrency(v)}</span> },
+    { key: 'paymentMethod', label: t('payments.method'), render: (v) => <Badge label={v} className={METHOD_COLORS[v] ?? 'bg-slate-500/20 text-slate-400 border-slate-500/30'} /> },
+    { key: 'paymentType', label: t('payments.type'), render: (v) => <Badge label={v} className={TYPE_COLORS[v] ?? 'bg-slate-500/20 text-slate-400 border-slate-500/30'} /> },
+    { key: 'transactionId', label: t('payments.transactionId'), render: (v) => v ? <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>{v}</span> : '—' },
   ];
 
   return (
     <div className="space-y-5 animate-fade-in">
       <PageHeader
-        title="Payments"
-        subtitle={`${payments.length} payment records`}
+        title={t('payments.title')}
+        subtitle={`${payments.length} ${t('payments.paymentRecords')}`}
         actions={
           <button id="add-payment-btn" onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold transition-colors glow-indigo" style={{ backgroundColor: 'var(--primary)' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
-            <Plus size={16} /> Record Payment
+            <Plus size={16} /> {t('payments.recordPayment')}
           </button>
         }
       />
@@ -90,10 +92,10 @@ export default function Payments() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Total Received', value: payments.filter(p => p.paymentType !== 'refund').reduce((s, p) => s + p.amount, 0), color: 'var(--success)' },
-          { label: 'Advance', value: payments.filter(p => p.paymentType === 'advance').reduce((s, p) => s + p.amount, 0), color: 'var(--warning)' },
-          { label: 'Full Payments', value: payments.filter(p => p.paymentType === 'full').reduce((s, p) => s + p.amount, 0), color: 'var(--info)' },
-          { label: 'Refunds', value: payments.filter(p => p.paymentType === 'refund').reduce((s, p) => s + p.amount, 0), color: 'var(--danger)' },
+          { label: t('payments.totalReceived'), value: payments.filter(p => p.paymentType !== 'refund').reduce((s, p) => s + p.amount, 0), color: 'var(--success)' },
+          { label: t('payments.advance'), value: payments.filter(p => p.paymentType === 'advance').reduce((s, p) => s + p.amount, 0), color: 'var(--warning)' },
+          { label: t('payments.fullPayments'), value: payments.filter(p => p.paymentType === 'full').reduce((s, p) => s + p.amount, 0), color: 'var(--info)' },
+          { label: t('payments.refunds'), value: payments.filter(p => p.paymentType === 'refund').reduce((s, p) => s + p.amount, 0), color: 'var(--danger)' },
         ].map(({ label, value, color }) => (
           <div key={label} className="glass-card rounded-xl border p-4" style={{ borderColor: 'var(--border-color)' }}>
             <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{label}</p>
@@ -102,60 +104,60 @@ export default function Payments() {
         ))}
       </div>
 
-      <DataTable columns={columns} data={payments} loading={loading} emptyTitle="No payments yet" emptyDescription="Record your first payment." />
+      <DataTable columns={columns} data={payments} loading={loading} emptyTitle={t('payments.noPaymentsYet')} emptyDescription={t('payments.noPaymentsDescription')} />
 
-      <Modal isOpen={showModal} onClose={() => { setShowModal(false); reset(); }} title="Record Payment">
+      <Modal isOpen={showModal} onClose={() => { setShowModal(false); reset(); }} title={t('payments.recordPayment')}>
         <form id="payment-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Customer *</label>
-              <select {...register('customerId', { required: 'Required' })} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50">
-                <option value="">Select customer…</option>
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('common.customer')} *</label>
+              <select {...register('customerId', { required: t('validation.required') })} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50">
+                <option value="">{t('payments.selectCustomer')}</option>
                 {customers.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
               {errors.customerId && <p className="text-xs text-rose-400 mt-1">{errors.customerId.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Order (optional)</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('payments.orderOptional')}</label>
               <select {...register('orderId')} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50">
-                <option value="">No specific order</option>
+                <option value="">{t('payments.noSpecificOrder')}</option>
                 {orders.map((o) => <option key={o._id} value={o._id}>{o.orderNo} — {o.customerId?.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Amount (Rs.) *</label>
-              <input {...register('amount', { required: 'Required', min: { value: 1, message: 'Must be > 0' } })} type="number" min="1" placeholder="0" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50" />
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('payments.amount')} *</label>
+              <input {...register('amount', { required: t('validation.required'), min: { value: 1, message: t('validation.mustBePositive') } })} type="number" min="1" placeholder="0" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50" />
               {errors.amount && <p className="text-xs text-rose-400 mt-1">{errors.amount.message}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Payment Date</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('payments.paymentDate')}</label>
               <input {...register('paymentDate')} type="date" defaultValue={new Date().toISOString().slice(0,10)} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Method</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('payments.method')}</label>
               <select {...register('paymentMethod')} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50">
                 {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Payment Type</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('payments.paymentType')}</label>
               <select {...register('paymentType')} className="w-full px-3 py-2.5 rounded-xl bg-[#0f1629] border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500/50">
                 {TYPES.map((t) => <option key={t} value={t} className="capitalize">{t}</option>)}
               </select>
             </div>
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-400 mb-1">Transaction ID</label>
-              <input {...register('transactionId')} placeholder="optional" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('payments.transactionId')}</label>
+              <input {...register('transactionId')} placeholder={t('payments.optional')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50" />
             </div>
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-400 mb-1">Notes</label>
-              <textarea {...register('notes')} rows={2} placeholder="Payment notes…" className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 resize-none" />
+              <label className="block text-xs font-medium text-slate-400 mb-1">{t('common.notes')}</label>
+              <textarea {...register('notes')} rows={2} placeholder={t('payments.paymentNotes')} className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 resize-none" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={() => { setShowModal(false); reset(); }} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5">Cancel</button>
+            <button type="button" onClick={() => { setShowModal(false); reset(); }} className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/5">{t('common.cancel')}</button>
             <button id="payment-submit-btn" type="submit" disabled={isSubmitting} className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold disabled:opacity-60">
-              {isSubmitting ? 'Saving…' : 'Record Payment'}
+              {isSubmitting ? t('common.loading') : t('payments.recordPayment')}
             </button>
           </div>
         </form>
