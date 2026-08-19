@@ -175,7 +175,9 @@
     "itemName": "Item Name",
     "qty": "Qty",
     "unitPrice": "Unit Price",
-    "allStatuses": "All Statuses"
+    "allStatuses": "All Statuses",
+    "updateOrder": "Update Order",
+    "createOrder": "Create Order"
   },
   "measurements": {
     "title": "Measurements",
@@ -261,8 +263,10 @@
     "noPaymentsYet": "No payments yet",
     "amount": "Amount",
     "method": "Method",
+    "type": "Payment Type",
     "date": "Date",
     "paymentCreated": "Payment recorded",
+    "paymentRecorded": "Payment recorded",
     "paymentUpdated": "Payment updated",
     "paymentDeleted": "Payment deleted"
   },
@@ -437,5 +441,35 @@
     "dark": "Dark",
     "light": "Light",
     "switchTheme": "Switch Theme"
+  },
+  "orderReview": {
+    "title": "Order Review",
+    "customerAndOrder": "Customer & Order",
+    "paymentSummary": "Payment Summary",
+    "perUnit": "Per Unit",
+    "orderTotal": "Order Total",
+    "toReceive": "Balance Due",
+    "received": "Received",
+    "paymentHistory": "Payment History",
+    "noPayments": "No payments recorded yet",
+    "garmentDetails": "Garment Details",
+    "measurements": "Measurements",
+    "noMeasurements": "No measurements linked to this order",
+    "booking": "Order Date",
+    "delivery": "Delivery Date",
+    "reference": "Customer Code",
+    "tailor": "Assigned Tailor",
+    "priority": "Priority",
+    "notes": "Order Notes",
+    "stitchingNotes": "Stitching Notes",
+    "updatedAt": "Last updated",
+    "deleteConfirm": "Are you sure you want to delete order {{orderNo}}? This action cannot be undone.",
+    "loadError": "Failed to load order details. Please try again.",
+    "recordPayment": "Record Payment",
+    "whatsappMessage": "Hello {{name}},\n\nYour tailoring order *{{orderNo}}* is currently *{{status}}*.\n\n📅 Delivery Date: {{delivery}}\n💰 Order Total: {{total}}\n✅ Paid: {{paid}}\n⏳ Balance: {{balance}}\n\nThank you for choosing us!",
+    "itemQty": "Qty",
+    "itemUnit": "Unit Price",
+    "itemTotal": "Total"
   }
 }
+

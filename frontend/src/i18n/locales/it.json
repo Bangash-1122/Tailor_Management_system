@@ -175,7 +175,9 @@
     "itemName": "Nome Articolo",
     "qty": "Qtà",
     "unitPrice": "Prezzo Unitario",
-    "allStatuses": "Tutti gli Stati"
+    "allStatuses": "Tutti gli Stati",
+    "updateOrder": "Aggiorna Ordine",
+    "createOrder": "Crea Ordine"
   },
   "measurements": {
     "title": "Misure",
@@ -261,8 +263,10 @@
     "noPaymentsYet": "Nessun pagamento ancora",
     "amount": "Importo",
     "method": "Metodo",
+    "type": "Tipo Pagamento",
     "date": "Data",
     "paymentCreated": "Pagamento registrato",
+    "paymentRecorded": "Pagamento registrato",
     "paymentUpdated": "Pagamento aggiornato",
     "paymentDeleted": "Pagamento eliminato"
   },
@@ -437,5 +441,35 @@
     "dark": "Scuro",
     "light": "Chiaro",
     "switchTheme": "Cambia Tema"
+  },
+  "orderReview": {
+    "title": "Revisione Ordine",
+    "customerAndOrder": "Cliente e Ordine",
+    "paymentSummary": "Riepilogo Pagamento",
+    "perUnit": "Per Unità",
+    "orderTotal": "Totale Ordine",
+    "toReceive": "Saldo Dovuto",
+    "received": "Ricevuto",
+    "paymentHistory": "Storico Pagamenti",
+    "noPayments": "Nessun pagamento registrato",
+    "garmentDetails": "Dettagli Capo",
+    "measurements": "Misure",
+    "noMeasurements": "Nessuna misura collegata a questo ordine",
+    "booking": "Data Ordine",
+    "delivery": "Data Consegna",
+    "reference": "Codice Cliente",
+    "tailor": "Sarto Assegnato",
+    "priority": "Priorità",
+    "notes": "Note Ordine",
+    "stitchingNotes": "Note Cucitura",
+    "updatedAt": "Ultimo aggiornamento",
+    "deleteConfirm": "Sei sicuro di voler eliminare l'ordine {{orderNo}}?",
+    "loadError": "Impossibile caricare i dettagli dell'ordine.",
+    "recordPayment": "Registra Pagamento",
+    "whatsappMessage": "Salve {{name}},\n\nIl tuo ordine sartoriale *{{orderNo}}* è attualmente *{{status}}*.\n\n📅 Consegna: {{delivery}}\n💰 Totale: {{total}}\n✅ Pagato: {{paid}}\n⏳ Saldo: {{balance}}\n\nGrazie!",
+    "itemQty": "Qtà",
+    "itemUnit": "Prezzo Unitario",
+    "itemTotal": "Totale"
   }
 }
+

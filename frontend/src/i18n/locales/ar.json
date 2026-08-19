@@ -175,7 +175,9 @@
     "itemName": "اسم العنصر",
     "qty": "الكمية",
     "unitPrice": "سعر الوحدة",
-    "allStatuses": "جميع الحالات"
+    "allStatuses": "جميع الحالات",
+    "updateOrder": "تحديث الطلب",
+    "createOrder": "إنشاء طلب"
   },
   "measurements": {
     "title": "القياسات",
@@ -261,8 +263,10 @@
     "noPaymentsYet": "لا توجد مدفوعات بعد",
     "amount": "المبلغ",
     "method": "الطريقة",
+    "type": "نوع الدفع",
     "date": "التاريخ",
     "paymentCreated": "تم تسجيل الدفعة",
+    "paymentRecorded": "تم تسجيل الدفعة",
     "paymentUpdated": "تم تحديث الدفعة",
     "paymentDeleted": "تم حذف الدفعة"
   },
@@ -437,5 +441,35 @@
     "dark": "داكن",
     "light": "فاتح",
     "switchTheme": "تغيير المظهر"
+  },
+  "orderReview": {
+    "title": "مراجعة الطلب",
+    "customerAndOrder": "العميل والطلب",
+    "paymentSummary": "ملخص الدفع",
+    "perUnit": "لكل وحدة",
+    "orderTotal": "إجمالي الطلب",
+    "toReceive": "الرصيد المستحق",
+    "received": "المدفوع",
+    "paymentHistory": "سجل المدفوعات",
+    "noPayments": "لا توجد مدفوعات مسجلة",
+    "garmentDetails": "تفاصيل الملابس",
+    "measurements": "المقاسات",
+    "noMeasurements": "لا توجد مقاسات مرتبطة بهذا الطلب",
+    "booking": "تاريخ الطلب",
+    "delivery": "تاريخ التسليم",
+    "reference": "رمز العميل",
+    "tailor": "الخياط المعين",
+    "priority": "الأولوية",
+    "notes": "ملاحظات الطلب",
+    "stitchingNotes": "ملاحظات الخياطة",
+    "updatedAt": "آخر تحديث",
+    "deleteConfirm": "هل أنت متأكد من حذف الطلب {{orderNo}}؟",
+    "loadError": "فشل تحميل تفاصيل الطلب.",
+    "recordPayment": "تسجيل دفعة",
+    "whatsappMessage": "السلام عليكم {{name}},\n\nطلب الخياطة *{{orderNo}}* حالته *{{status}}*.\n\n📅 التسليم: {{delivery}}\n💰 الإجمالي: {{total}}\n✅ المدفوع: {{paid}}\n⏳ الرصيد: {{balance}}\n\nشكراً لكم!",
+    "itemQty": "الكمية",
+    "itemUnit": "سعر الوحدة",
+    "itemTotal": "الإجمالي"
   }
 }
+

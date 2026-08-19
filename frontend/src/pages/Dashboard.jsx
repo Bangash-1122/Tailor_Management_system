@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Users, ShoppingBag, CreditCard, TrendingUp,
   Clock, AlertTriangle, CheckCircle, Package,
-  ArrowRight, Scissors,
+  ArrowRight, Scissors, ChevronRight,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -17,6 +17,8 @@ import { getDashboard } from '../api/reports';
 import { formatCurrency, formatDate, ORDER_STATUS_COLORS } from '../utils/helpers';
 import Badge from '../components/common/Badge';
 import { Link } from 'react-router-dom';
+import OrderReviewDrawer from '../components/orders/OrderReviewDrawer';
+
 
 const STATUS_COLORS_CHART = {
   pending:   '#f59e0b',
@@ -34,6 +36,20 @@ export default function Dashboard() {
   const isDark = currentThemeObj?.isDark;
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const openDrawer = (orderId) => {
+    setSelectedOrderId(orderId);
+    setDrawerOpen(true);
+  };
+  const closeDrawer = () => setDrawerOpen(false);
+  const handleOrderMutated = () => {
+    getDashboard()
+      .then((res) => setStats(res.data.data))
+      .catch(() => {});
+  };
+
 
   useEffect(() => {
     getDashboard()
@@ -169,21 +185,42 @@ export default function Dashboard() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: `1px solid var(--divider-color)` }}>
-                  {[t('dashboard.orderNumber'), t('dashboard.customer'), t('dashboard.items'), t('common.amount'), t('dashboard.delivery'), t('common.status')].map((h) => (
+                  {[t('dashboard.orderNumber'), t('dashboard.customer'), t('dashboard.items'), t('common.amount'), t('dashboard.delivery'), t('common.status'), ''].map((h) => (
                     <th key={h} className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)', backgroundColor: 'var(--table-header-background)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y" style={{ borderColor: 'var(--divider-color)' }}>
                 {recentOrders.slice(0, 6).map((o) => (
-                  <tr key={o._id} className="transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                    <td className="px-5 py-3 font-mono text-xs" style={{ color: 'var(--primary)' }}>{o.orderNo}</td>
-                    <td className="px-5 py-3">{o.customerId?.name ?? '—'}</td>
+                  <tr
+                    key={o._id}
+                    onClick={() => openDrawer(o._id)}
+                    className="transition-colors cursor-pointer"
+                    style={{ color: 'var(--text-secondary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <td className="px-5 py-3 font-mono text-xs font-semibold" style={{ color: 'var(--primary)' }}>{o.orderNo}</td>
+                    <td className="px-5 py-3 font-medium" style={{ color: 'var(--text-primary)' }}>{o.customerId?.name ?? '—'}</td>
                     <td className="px-5 py-3">{o.items?.length ?? 0}</td>
                     <td className="px-5 py-3 font-semibold" style={{ color: 'var(--success)' }}>{formatCurrency(o.totalAmount)}</td>
                     <td className="px-5 py-3">{formatDate(o.deliveryDate)}</td>
+
                     <td className="px-5 py-3">
                       <Badge label={o.status} className={ORDER_STATUS_COLORS[o.status]} />
+                    </td>
+                    <td className="px-2 py-3 text-right">
+                      <button
+                        id={`review-order-${o._id}`}
+                        onClick={() => openDrawer(o._id)}
+                        className="p-1.5 rounded-lg transition-all"
+                        style={{ color: 'var(--text-muted)' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.backgroundColor = 'var(--primary-soft)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                        title={t('orderReview.title')}
+                      >
+                        <ChevronRight size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -192,6 +229,13 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      <OrderReviewDrawer
+        orderId={selectedOrderId}
+        open={drawerOpen}
+        onClose={closeDrawer}
+        onOrderMutated={handleOrderMutated}
+      />
     </div>
   );
 }

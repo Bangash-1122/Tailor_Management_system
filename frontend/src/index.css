@@ -15,11 +15,13 @@ html.dark {
   --surface-hover: rgba(255, 255, 255, 0.05);
   --surface-subtle: rgba(255, 255, 255, 0.03);
   --input-background: rgba(255, 255, 255, 0.05);
+  --form-background: rgba(255, 255, 255, 0.05);
   --dropdown-background: #0c1220;
   --modal-background: #0c1220;
   --table-background: transparent;
   --table-header-background: rgba(255, 255, 255, 0.02);
   --table-row-hover: rgba(255, 255, 255, 0.03);
+
 
   --text-primary: #ffffff;
   --text-secondary: #94a3b8;
@@ -72,8 +74,10 @@ html.light,
   --surface-hover: #F8FAFC;
   --surface-subtle: #F8FAFC;
   --input-background: #F8FAFC;
+  --form-background: #F8FAFC;
   --dropdown-background: #FFFFFF;
   --modal-background: #FFFFFF;
+
   --table-background: #FFFFFF;
   --table-header-background: #FAFBFC;
   --table-row-hover: #F8FAFC;
@@ -403,6 +407,13 @@ html.light .fixed.inset-0 {
 .animate-slide-in   { animation: slideInLeft 0.3s ease-out both; }
 .animate-pulse-glow { animation: pulse-glow  2s infinite; }
 
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in-right { animation: slideInRight 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+
+
 .stagger-1 { animation-delay: 0.05s; }
 .stagger-2 { animation-delay: 0.10s; }
 .stagger-3 { animation-delay: 0.15s; }
@@ -420,8 +431,31 @@ html.light input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0);
 }
 
+/* ─── Form select & dropdown option base ─── */
+select {
+  color-scheme: dark;
+}
+
+html.light select,
+[data-theme^="light"] select {
+  color-scheme: light;
+}
+
+select option {
+  background-color: #0c1220;
+  color: #ffffff;
+  padding: 8px 12px;
+}
+
+html.light select option,
+[data-theme^="light"] select option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
 /* ─── Table helpers ─── */
 table { border-collapse: collapse; width: 100%; }
+
 
 /* ─── Print Pages Excluded From Theme Styling ─── */
 @media print {

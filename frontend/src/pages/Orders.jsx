@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Plus, Search, Edit2, Trash2, FileText, ChevronDown } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, FileText, ChevronDown, Eye } from 'lucide-react';
+
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
 import PageHeader from '../components/common/PageHeader';
@@ -12,6 +13,8 @@ import { getOrders, createOrder, updateOrder, updateOrderStatus, deleteOrder } f
 import { getCustomers } from '../api/customers';
 import { getInvoice } from '../api/reports';
 import { formatCurrency, formatDate, ORDER_STATUS_COLORS, PRIORITY_COLORS } from '../utils/helpers';
+import OrderReviewDrawer from '../components/orders/OrderReviewDrawer';
+
 
 const STATUSES   = ['pending','cutting','stitching','trial','ready','delivered','cancelled'];
 const PRIORITIES = ['low','normal','high','urgent'];
@@ -29,6 +32,12 @@ export default function Orders() {
   const [editing, setEditing]       = useState(null);
   const [deleting, setDeleting]     = useState(null);
   const [statusModal, setStatusModal] = useState(null);
+  const [reviewOrderId, setReviewOrderId] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const openReview = (id) => { setReviewOrderId(id); setDrawerOpen(true); };
+  const closeReview = () => setDrawerOpen(false);
+
 
   const { register, handleSubmit, reset, control, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { items: [{ itemName: '', quantity: 1, unitPrice: 0, totalPrice: 0 }] }
@@ -115,6 +124,7 @@ export default function Orders() {
       key: '_id', label: t('common.actions'),
       render: (id, row) => (
         <div className="flex items-center gap-1">
+          <button id={`review-order-${id}`} onClick={() => openReview(id)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.backgroundColor = 'var(--primary-soft)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }} title={t('orderReview.title')}><Eye size={14} /></button>
           <button id={`invoice-${id}`} onClick={() => handleInvoice(id)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.backgroundColor = 'var(--primary-soft)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }} title="Invoice"><FileText size={14} /></button>
           <button id={`edit-order-${id}`} onClick={() => openEdit(row)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.backgroundColor = 'var(--primary-soft)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }}><Edit2 size={14} /></button>
           <button id={`delete-order-${id}`} onClick={() => setDeleting(row)} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--danger)'; e.currentTarget.style.backgroundColor = 'rgba(244, 63, 94, 0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.backgroundColor = 'transparent'; }}><Trash2 size={14} /></button>
@@ -122,6 +132,7 @@ export default function Orders() {
       ),
     },
   ];
+
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -248,6 +259,13 @@ export default function Orders() {
           <button id="confirm-delete-order-btn" onClick={() => handleDelete(deleting?._id)} className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold">{t('common.delete')}</button>
         </div>
       </Modal>
+
+      <OrderReviewDrawer
+        orderId={reviewOrderId}
+        open={drawerOpen}
+        onClose={closeReview}
+        onOrderMutated={fetchAll}
+      />
     </div>
   );
 }

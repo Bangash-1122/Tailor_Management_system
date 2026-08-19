@@ -175,7 +175,9 @@
     "itemName": "د توکي نوم",
     "qty": "مقدار",
     "unitPrice": "یونټ قیمت",
-    "allStatuses": "ټول وضعیتونه"
+    "allStatuses": "ټول وضعیتونه",
+    "updateOrder": "آرډر اپډیټ کړئ",
+    "createOrder": "آرډر جوړ کړئ"
   },
   "measurements": {
     "title": "اندازه کول",
@@ -261,8 +263,10 @@
     "noPaymentsYet": "تر اوسه هیڅ تادیه نه",
     "amount": "اندازه",
     "method": "طریقه",
+    "type": "د تادیې ډول",
     "date": "نېټه",
     "paymentCreated": "تادیه ریکارډ شوه",
+    "paymentRecorded": "تادیه ریکارډ شوه",
     "paymentUpdated": "تادیه اپ ډیټ شوه",
     "paymentDeleted": "تادیه ړنګول شوه"
   },
@@ -437,5 +441,35 @@
     "dark": "تاریک",
     "light": "روښانه",
     "switchTheme": "تیم بدل کړئ"
+  },
+  "orderReview": {
+    "title": "آرډر بیا کتل",
+    "customerAndOrder": "پیرودی او آرډر",
+    "paymentSummary": "د ادایو خلاصه",
+    "perUnit": "په یونټ",
+    "orderTotal": "د آرډر مجموع",
+    "toReceive": "پاته رقم",
+    "received": "واخیسته شوی",
+    "paymentHistory": "د ادایو تاریخ",
+    "noPayments": "لا تره هیڅ ادایه ثبت نه ده",
+    "garmentDetails": "د جامو تفصیلات",
+    "measurements": "اندازه‌ګیری",
+    "noMeasurements": "د دې آرډر سره کوم اندازه‌ګیری نسته",
+    "booking": "د آرډر نیټه",
+    "delivery": "د سپرولو نیټه",
+    "reference": "د پیرودی کوډ",
+    "tailor": "توکل شوی درزی",
+    "priority": "لومړیتیا",
+    "notes": "د آرډر یادداشتونه",
+    "stitchingNotes": "د کلاوو یادداشتونه",
+    "updatedAt": "وروسته اپویټ",
+    "deleteConfirm": "آیا تاسو د آرډر {{orderNo}} ایل کول غواړئ؟",
+    "loadError": "د آرډر تفصیلات لوډ کول ویکسیو.",
+    "recordPayment": "ادایه ثبته کړی",
+    "whatsappMessage": "سلام {{name}},\n\nد ستاسو د درزی آرډر *{{orderNo}}* اوسته *{{status}}* دی.\n\n📅 سپرول: {{delivery}}\n💰 مجموع: {{total}}\n✅ ادایه: {{paid}}\n⏳ پاته: {{balance}}\n\nمننته!",
+    "itemQty": "شمیر",
+    "itemUnit": "په یونټ بیه",
+    "itemTotal": "مجموع"
   }
 }
+

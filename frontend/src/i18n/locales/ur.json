@@ -175,7 +175,9 @@
     "itemName": "آئٹم کا نام",
     "qty": "مقدار",
     "unitPrice": "یونٹ قیمت",
-    "allStatuses": "تمام حیثیت"
+    "allStatuses": "تمام حیثیت",
+    "updateOrder": "آرڈر اپ ڈیٹ کریں",
+    "createOrder": "آرڈر بنائیں"
   },
   "measurements": {
     "title": "پیمائش",
@@ -261,8 +263,10 @@
     "noPaymentsYet": "ابھی کوئی ادائیگی نہیں",
     "amount": "رقم",
     "method": "طریقہ",
+    "type": "ادائیگی کی قسم",
     "date": "تاریخ",
     "paymentCreated": "ادائیگی ریکارڈ ہوئی",
+    "paymentRecorded": "ادائیگی ریکارڈ ہوئی",
     "paymentUpdated": "ادائیگی اپ ڈیٹ ہوئی",
     "paymentDeleted": "ادائیگی حذف ہوئی"
   },
@@ -437,5 +441,34 @@
     "dark": "تاریک",
     "light": "روشنی",
     "switchTheme": "تھیم تبدیل کریں"
+  },
+  "orderReview": {
+    "title": "آرڈر جائزہ",
+    "customerAndOrder": "صارف اور آرڈر",
+    "paymentSummary": "ادائیگی خلاصہ",
+    "perUnit": "فی یونٹ",
+    "orderTotal": "کل آرڈر",
+    "toReceive": "باقی رقم",
+    "received": "موصول شدہ",
+    "paymentHistory": "ادائیگی کی تاریخ",
+    "noPayments": "ابھی تک کوئی ادائیگی نہیں",
+    "garmentDetails": "لباس کی تفصیل",
+    "measurements": "پیمائش",
+    "noMeasurements": "اس آرڈر سے کوئی پیمائش منسلک نہیں",
+    "booking": "آرڈر کی تاریخ",
+    "delivery": "ڈیلیوری کی تاریخ",
+    "reference": "صارف کوڈ",
+    "tailor": "مقرر کردہ درزی",
+    "priority": "ترجیح",
+    "notes": "آرڈر نوٹس",
+    "stitchingNotes": "سلائی نوٹس",
+    "updatedAt": "آخری اپ ڈیٹ",
+    "deleteConfirm": "کیا آپ واقعی آرڈر {{orderNo}} حذف کرنا چاہتے ہیں؟",
+    "loadError": "آرڈر کی تفصیل لوڈ کرنے میں ناکامی۔",
+    "recordPayment": "ادائیگی درج کریں",
+    "whatsappMessage": "السلام علیکم {{name}},\n\nآپ کا درزی آرڈر *{{orderNo}}* ابھی *{{status}}* ہے۔\n\n📅 ڈیلیوری: {{delivery}}\n💰 کل: {{total}}\n✅ ادا شدہ: {{paid}}\n⏳ بقایا: {{balance}}\n\nشکریہ!",
+    "itemQty": "تعداد",
+    "itemUnit": "فی یونٹ قیمت",
+    "itemTotal": "کل"
   }
 }

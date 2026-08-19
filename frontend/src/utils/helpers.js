@@ -43,3 +43,18 @@ export const PRIORITY_COLORS = {
   high:   'bg-amber-500/20 text-amber-400 border-amber-500/30',
   urgent: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
 };
+
+/**
+ * Normalize a phone number for wa.me WhatsApp links.
+ * - Strips non-digit characters
+ * - If starts with 0, replaces leading 0 with 92 (Pakistan country code)
+ * - If already has country code, leaves it
+ */
+export const normalizePhoneForWhatsApp = (phone = '') => {
+  const digits = phone.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('0')) return '92' + digits.slice(1);
+  if (digits.startsWith('92')) return digits;
+  return '92' + digits;
+};
+
